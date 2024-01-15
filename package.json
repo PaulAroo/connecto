@@ -1,0 +1,37 @@
+{
+	"name": "callee-slate",
+	"version": "0.0.0",
+	"description": "",
+	"type": "module",
+	"files": [
+		"x",
+		"s"
+	],
+	"scripts": {
+		"build": "turtle-standard && ln -s $(realpath assets) x/assets",
+		"http": "http-server x",
+		"watch": "turtle-standard-watch",
+		"start": "run-p http watch",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@benev/turtle": "^0.5.2",
+		"@rollup/plugin-node-resolve": "^15.2.3",
+		"@rollup/plugin-wasm": "^6.2.2",
+		"chokidar": "^3.5.3",
+		"chokidar-cli": "^3.0.0",
+		"es-module-shims": "^1.8.2",
+		"http-server": "^14.1.1",
+		"importly": "^0.2.3",
+		"npm-run-all": "^4.1.5",
+		"rollup": "^4.9.5",
+		"terser": "^5.26.0",
+		"typescript": "^5.3.3"
+	},
+	"dependencies": {
+		"@benev/slate": "0.1.0-x.6"
+	}
+}
