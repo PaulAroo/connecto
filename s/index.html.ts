@@ -7,13 +7,17 @@ import {
 
 export default template(async (basics) => {
 	const path = basics.path(import.meta.url)
+	const cssPath = path.version.root("index.css")
 	return easypage({
-		path: basics.path(import.meta.url),
+		path,
 		title: "callee-slate",
 		head: html`
-			<link rel="stylesheet" href="${path.version.root("index.css")}" />
+			<link rel="stylesheet" href="${cssPath}" />
 			${startup_scripts_with_dev_mode(path)}
 		`,
-		body: html` <div>hello</div> `,
+		body: html`
+			<div>hello</div>
+			<my-shadow-component></my-shadow-component>
+		`,
 	})
 })
