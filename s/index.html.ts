@@ -17,7 +17,7 @@ export default template(async (basics) => {
 		`,
 		body: html`
 			<div>hello</div>
-			<my-shadow-component></my-shadow-component>
+			<callee-slate></callee-slate>
 		`,
 	})
 })
