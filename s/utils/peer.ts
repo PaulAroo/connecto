@@ -22,7 +22,7 @@ const standardRtcConfig: RTCConfiguration = {
 	],
 }
 
-async function makeCall() {
+async function joinACallSession() {
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
 	const peerConnection = new RTCPeerConnection(standardRtcConfig)
 
@@ -30,6 +30,6 @@ async function makeCall() {
 		peerConnection.addTrack(track)
 	})
 
-	const offer = await peerConnection.createOffer()
-	peerConnection.setLocalDescription(offer)
+	const answer = await peerConnection.createAnswer()
+	peerConnection.setLocalDescription(answer)
 }
