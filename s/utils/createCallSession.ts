@@ -39,6 +39,31 @@ export async function createCallSession({
 					})
 				}
 
+				// manage connection state
+				peerConnection.onconnectionstatechange = () => {
+					switch (peerConnection.connectionState) {
+						case "new":
+						case "connecting":
+							console.log("Connecting…")
+							break
+						case "connected":
+							console.log("Online")
+							break
+						case "disconnected":
+							console.log("Disconnecting…")
+							break
+						case "closed":
+							console.log("Offline")
+							break
+						case "failed":
+							console.log("Error")
+							break
+						default:
+							console.log("Unknown")
+							break
+					}
+				}
+
 				const offer = await peerConnection.createOffer()
 				peerConnection.setLocalDescription(offer)
 				return { offer }
