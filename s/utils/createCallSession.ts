@@ -4,9 +4,11 @@ import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-si
 import { queue } from "sparrow-rtc/x/toolbox/queue.js"
 
 export async function createCallSession({
+	audioElement,
 	signalServerUrl,
 }: {
 	signalServerUrl: string
+	audioElement: HTMLAudioElement | null
 }) {
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
 	const peerConnection = new RTCPeerConnection(standardRtcConfig)
@@ -16,13 +18,14 @@ export async function createCallSession({
 	})
 
 	let remoteStream: MediaStream
+	let iceQueue: ReturnType<typeof queue>
 
 	const connection = await connectToSignalServer({
 		url: signalServerUrl,
 		host: {
 			async handleJoiner(clientId) {
 				// gather and send ice candidate
-				const iceQueue = queue(async (candidates: any[]) =>
+				iceQueue = queue(async (candidates: any[]) =>
 					connection.signalServer.hosting.submitIceCandidates(
 						clientId,
 						candidates
@@ -37,6 +40,8 @@ export async function createCallSession({
 					event.streams[0].getAudioTracks().forEach((track) => {
 						remoteStream.addTrack(track)
 					})
+
+					if (audioElement) audioElement.srcObject = remoteStream
 				}
 
 				// manage connection state
@@ -68,8 +73,21 @@ export async function createCallSession({
 				peerConnection.setLocalDescription(offer)
 				return { offer }
 			},
-			async handleAnswer(clientId, answer) {},
-			async handleIceCandidates(clientId, candidates) {},
+			async handleAnswer(clientId, answer) {
+				await peerConnection.setRemoteDescription(
+					new RTCSessionDescription(answer)
+				)
+				await iceQueue.ready()
+			},
+			async handleIceCandidates(clientId, candidates) {
+				for (const candidate of candidates)
+					await peerConnection.addIceCandidate(candidate)
+			},
 		},
+	})
+
+	await connection.signalServer.hosting.establishSession({
+		discoverable: true,
+		label: "call test session",
 	})
 }
