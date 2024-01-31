@@ -14,11 +14,11 @@ export async function joinCallSession({
 	const peerConnection = new RTCPeerConnection(standardRtcConfig)
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
-	localStream.getAudioTracks().forEach((track) => {
+	localStream.getTracks().forEach((track) => {
 		peerConnection.addTrack(track, localStream)
 	})
 
-	let remoteStream: MediaStream
+	let remoteStream: MediaStream = new MediaStream()
 
 	const connection = await connectToSignalServer({
 		url: signalServerUrl,

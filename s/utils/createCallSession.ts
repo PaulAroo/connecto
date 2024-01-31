@@ -17,7 +17,7 @@ export async function createCallSession({
 		peerConnection.addTrack(track, localStream)
 	})
 
-	let remoteStream: MediaStream
+	let remoteStream: MediaStream = new MediaStream()
 	let iceQueue: ReturnType<typeof queue>
 
 	const connection = await connectToSignalServer({
@@ -37,7 +37,7 @@ export async function createCallSession({
 
 				// get remote audio stream from client
 				peerConnection.ontrack = (event) => {
-					event.streams[0].getAudioTracks().forEach((track) => {
+					event.streams[0].getTracks().forEach((track) => {
 						remoteStream.addTrack(track)
 					})
 
