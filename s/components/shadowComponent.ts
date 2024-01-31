@@ -5,8 +5,9 @@ import { joinCallSession } from "../utils/joinCallSession.js"
 
 const signalServerUrl = "wss://sparrow-rtc.benevolent.games/"
 
-export const CalleeSlate = app.shadow_component((use) => {
+export const ConnectTo = app.shadow_component((use) => {
 	const isHost = !use.context.sessionId
+
 	const audioElement = use.once(() => {
 		const audio = document.createElement("audio")
 		audio.autoplay = true
@@ -26,12 +27,10 @@ export const CalleeSlate = app.shadow_component((use) => {
 				signalServerUrl,
 			})
 		}
-
 		return () => {}
 	})
 
 	const startCallSession = async () => {
-		// const audioElement = use.shadow.querySelector("audio")
 		const { session, localStream, peerConnection } = await createCallSession({
 			audioElement,
 			signalServerUrl,
@@ -63,8 +62,8 @@ export const CalleeSlate = app.shadow_component((use) => {
 				<p>session label: ${sessionDetails.label}</p>
 				<p>
 					link to join session:
-					<a href=${`http://localhost:8080/?session=${sessionDetails.id}`}
-						>${`http://localhost:8080/?session=${sessionDetails.id}`}</a
+					<a href=${`${location.href}?session=${sessionDetails.id}`}
+						>${`${location.href}?session=${sessionDetails.id}`}</a
 					>
 				</p>
 			`

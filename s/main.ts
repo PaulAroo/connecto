@@ -1,7 +1,7 @@
 import { register_to_dom } from "@benev/slate"
 
-import { CalleeSlate } from "./components/shadowComponent.js"
+import { ConnectTo } from "./components/shadowComponent.js"
 
-console.log("callee")
+console.log("connecto")
 
-register_to_dom({ CalleeSlate })
+register_to_dom({ ConnectTo })

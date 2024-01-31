@@ -17,7 +17,7 @@ export default template(async (basics) => {
 		`,
 		body: html`
 			<div>hello</div>
-			<callee-slate></callee-slate>
+			<connect-to></connect-to>
 		`,
 	})
 })
