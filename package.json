@@ -32,7 +32,7 @@
 		"typescript": "^5.3.3"
 	},
 	"dependencies": {
-		"@benev/slate": "0.1.0-x.6",
+		"@benev/slate": "^0.1.0-x.7",
 		"sparrow-rtc": "^0.0.0-dev.6"
 	}
 }
