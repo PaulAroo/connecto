@@ -86,8 +86,14 @@ export async function createCallSession({
 		},
 	})
 
-	await connection.signalServer.hosting.establishSession({
+	const session = await connection.signalServer.hosting.establishSession({
 		discoverable: true,
 		label: "call test session",
 	})
+
+	return {
+		session,
+		peerConnection,
+		localStream,
+	}
 }
