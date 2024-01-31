@@ -1,5 +1,5 @@
 import { Nexus, Context, css } from "@benev/slate"
-import { urlHasSessionId } from "../utils/urlHasSessionId.js"
+import { getSessionIdFromUrl } from "../utils/getSessionIdFromUrl.js"
 
 export interface SessionInfo {
 	id: string
@@ -16,7 +16,7 @@ export const app = new Nexus(
 				box-sizing: border-box;
 			}
 		`
-		isHost = urlHasSessionId()
+		sessionId = getSessionIdFromUrl()
 		session: SessionInfo | undefined
 		localStream: MediaStream | undefined
 		peerConnection: RTCPeerConnection | undefined

@@ -1,17 +1,37 @@
 import { html } from "@benev/slate"
 import { SessionInfo, app } from "../context/app.js"
 import { createCallSession } from "../utils/createCallSession.js"
+import { joinCallSession } from "../utils/joinCallSession.js"
 
 const signalServerUrl = "wss://sparrow-rtc.benevolent.games/"
 
 export const CalleeSlate = app.shadow_component((use) => {
-	const isHost = use.context.isHost
+	const isHost = !use.context.sessionId
+	const audioElement = use.once(() => {
+		const audio = document.createElement("audio")
+		audio.autoplay = true
+		return audio
+	})
+
 	const [sessionDetails, setSessionDetails] = use.state<
 		SessionInfo | undefined
 	>(undefined)
 
+	use.mount(() => {
+		const sessionId = use.context.sessionId
+		if (sessionId) {
+			joinCallSession({
+				sessionId,
+				audioElement,
+				signalServerUrl,
+			})
+		}
+
+		return () => {}
+	})
+
 	const startCallSession = async () => {
-		const audioElement = use.shadow.querySelector("audio")
+		// const audioElement = use.shadow.querySelector("audio")
 		const { session, localStream, peerConnection } = await createCallSession({
 			audioElement,
 			signalServerUrl,
@@ -68,7 +88,7 @@ export const CalleeSlate = app.shadow_component((use) => {
 		return html` <div>intialized as a client</div> `
 	}
 
-	return html` <audio autoplay></audio>
+	return html` ${audioElement}
 		<div>first shadow component</div>
 		${isHost ? renderAsHost() : renderAsClient()}`
 })
