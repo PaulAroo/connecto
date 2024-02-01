@@ -8,7 +8,7 @@
 		"s"
 	],
 	"scripts": {
-		"build": "turtle-standard && ln -s $(realpath assets) x/assets",
+		"build": "turtle-standard",
 		"http": "http-server x",
 		"watch": "turtle-standard-watch",
 		"start": "run-p http watch",
