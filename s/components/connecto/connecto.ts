@@ -1,37 +1,14 @@
-import { css, html } from "@benev/slate"
-import { SessionInfo, app } from "../context/app.js"
-import { createCallSession } from "../utils/createCallSession.js"
-import { joinCallSession } from "../utils/joinCallSession.js"
+import { html } from "@benev/slate"
+
+import styles from "./styles.css.js"
+import { SessionInfo, app } from "../../context/app.js"
+import { joinCallSession } from "../../utils/joinCallSession.js"
+import { createCallSession } from "../../utils/createCallSession.js"
 
 const signalServerUrl = "wss://sparrow-rtc.benevolent.games/"
 
 export const ConnectTo = app.shadow_component((use) => {
-	use.styles(css`
-		.container {
-			width: fit-content;
-			margin-top: 1rem;
-		}
-
-		button {
-			background: transparent;
-			border: 1px solid darkslategrey;
-			color: inherit;
-			text-transform: capitalize;
-			padding: 0.5em 1em;
-			cursor: pointer;
-			border-radius: 5px;
-			margin-top: 0.5em;
-		}
-
-		button:disabled {
-			opacity: 0.2;
-			cursor: not-allowed;
-		}
-
-		a {
-			color: burlywood;
-		}
-	`)
+	use.styles(styles)
 
 	const isHost = !use.context.sessionId
 
@@ -120,3 +97,8 @@ export const ConnectTo = app.shadow_component((use) => {
 		</div>
 	`
 })
+
+// TODO
+// button to copy session link to github
+// refactor entire component
+// feat: client can disconnect from a call
