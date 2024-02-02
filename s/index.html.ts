@@ -10,7 +10,7 @@ export default template(async (basics) => {
 	const cssPath = path.version.root("index.css")
 	return easypage({
 		path,
-		title: "callee-slate",
+		title: "connecto",
 		head: html`
 			<link rel="stylesheet" href="${cssPath}" />
 			${startup_scripts_with_dev_mode(path)}
