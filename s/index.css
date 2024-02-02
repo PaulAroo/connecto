@@ -10,3 +10,7 @@ body {
 	background-color: rgb(8, 27, 38);
 	color: white;
 }
+
+p {
+	color: gray;
+}

@@ -1,4 +1,4 @@
-import { html } from "@benev/slate"
+import { css, html } from "@benev/slate"
 import { SessionInfo, app } from "../context/app.js"
 import { createCallSession } from "../utils/createCallSession.js"
 import { joinCallSession } from "../utils/joinCallSession.js"
@@ -6,6 +6,33 @@ import { joinCallSession } from "../utils/joinCallSession.js"
 const signalServerUrl = "wss://sparrow-rtc.benevolent.games/"
 
 export const ConnectTo = app.shadow_component((use) => {
+	use.styles(css`
+		.container {
+			width: fit-content;
+			margin-top: 1rem;
+		}
+
+		button {
+			background: transparent;
+			border: 1px solid darkslategrey;
+			color: inherit;
+			text-transform: capitalize;
+			padding: 0.5em 1em;
+			cursor: pointer;
+			border-radius: 5px;
+			margin-top: 0.5em;
+		}
+
+		button:disabled {
+			opacity: 0.2;
+			cursor: not-allowed;
+		}
+
+		a {
+			color: burlywood;
+		}
+	`)
+
 	const isHost = !use.context.sessionId
 
 	const audioElement = use.once(() => {
@@ -72,7 +99,7 @@ export const ConnectTo = app.shadow_component((use) => {
 
 	const renderAsHost = () => {
 		return html`
-			<div>intialized as a host</div>
+			<div>Host a call session</div>
 			<button @click=${startCallSession} .disabled=${!!sessionDetails}>
 				start a call session
 			</button>
@@ -84,10 +111,12 @@ export const ConnectTo = app.shadow_component((use) => {
 	}
 
 	const renderAsClient = () => {
-		return html` <div>intialized as a client</div> `
+		return html` <div>Joined a call session</div> `
 	}
 
-	return html` ${audioElement}
-		<div>first shadow component</div>
-		${isHost ? renderAsHost() : renderAsClient()}`
+	return html`
+		<div class="container">
+			${audioElement} ${isHost ? renderAsHost() : renderAsClient()}
+		</div>
+	`
 })
