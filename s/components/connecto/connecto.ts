@@ -18,6 +18,7 @@ export const ConnectTo = app.shadow_component((use) => {
 		return audio
 	})
 
+	const [clientId, setClientId] = use.state("")
 	const [sessionDetails, setSessionDetails] = use.state<
 		SessionInfo | undefined
 	>(undefined)
@@ -25,12 +26,24 @@ export const ConnectTo = app.shadow_component((use) => {
 	use.mount(() => {
 		const sessionId = use.context.sessionId
 		if (sessionId) {
-			joinCallSession({
-				sessionId,
-				audioElement,
-				signalServerUrl,
-			})
+			// joinCallSession({
+			// 	sessionId,
+			// 	audioElement,
+			// 	signalServerUrl,
+			// })
+			;(async () => {
+				const { clientId, sessionInfo } = await joinCallSession({
+					sessionId,
+					audioElement,
+					signalServerUrl,
+				})
+
+				setClientId(clientId)
+				setSessionDetails(sessionInfo)
+				use.context.session = sessionInfo
+			})()
 		}
+
 		return () => {}
 	})
 
@@ -78,7 +91,7 @@ export const ConnectTo = app.shadow_component((use) => {
 		return html`
 			<div>Host a call session</div>
 			<button @click=${startCallSession} .disabled=${!!sessionDetails}>
-				start a call session
+				start
 			</button>
 			<button @click=${stopCallSession} .disabled=${!sessionDetails}>
 				stop
@@ -88,7 +101,11 @@ export const ConnectTo = app.shadow_component((use) => {
 	}
 
 	const renderAsClient = () => {
-		return html` <div>Joined a call session</div> `
+		return html`
+			<div>Joined a call session</div>
+			<p>Client ID: ${clientId}</p>
+			<p>Session label: ${use.context.session?.label}</p>
+		`
 	}
 
 	return html`
@@ -102,3 +119,6 @@ export const ConnectTo = app.shadow_component((use) => {
 // button to copy session link to github
 // refactor entire component
 // feat: client can disconnect from a call
+// create separate views for host and client
+// create handlers and behaviours for different
+//   peer connection states
