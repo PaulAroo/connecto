@@ -4,12 +4,12 @@ import { app } from "../context/app.js"
 import { SessionInfo } from "../types.js"
 import { createCallSession } from "../utils/createCallSession.js"
 
-interface HostviewProps {
+interface HostViewProps {
 	audioElement: HTMLAudioElement
 	signalServerUrl: string
 }
 
-export const HostView = app.light_view((use) => (props: HostviewProps) => {
+export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	use.name("host-view")
 
 	const { audioElement, signalServerUrl } = props
