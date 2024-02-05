@@ -1,13 +1,16 @@
 import { standardRtcConfig } from "sparrow-rtc/x/connect/utils/standard-rtc-config.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
+import { app } from "../context/app.js"
 
 export async function joinCallSession({
-	signalServerUrl,
 	sessionId,
 	audioElement,
+	signalServerUrl,
+	handleDisconnect,
 }: {
-	signalServerUrl: string
 	sessionId: string
+	signalServerUrl: string
+	handleDisconnect: () => void
 	audioElement: HTMLAudioElement | null
 }) {
 	const peerConnection = new RTCPeerConnection(standardRtcConfig)
@@ -60,7 +63,8 @@ export async function joinCallSession({
 				console.log("Online")
 				break
 			case "disconnected":
-				console.log("Disconnecting…")
+				console.log("Disconnected")
+				handleDisconnect()
 				break
 			case "closed":
 				console.log("Offline")
@@ -88,6 +92,9 @@ export async function joinCallSession({
 		clientId,
 		answer
 	)
+
+	app.context.localStream = localStream
+	app.context.peerConnection = peerConnection
 
 	return {
 		clientId,

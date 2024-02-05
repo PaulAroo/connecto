@@ -4,13 +4,15 @@ import styles from "./styles.css.js"
 import { app } from "../../context/app.js"
 import { HostView } from "../../views/HostView.js"
 import { ClientView } from "../../views/ClientView.js"
+import { getSessionIdFromUrl } from "../../utils/getSessionIdFromUrl.js"
 
 const signalServerUrl = "wss://sparrow-rtc.benevolent.games/"
 
 export const ConnectTo = app.shadow_component((use) => {
 	use.styles(styles)
 
-	const isHost = !use.context.sessionId
+	const sessionId = getSessionIdFromUrl()
+	const isHost = !sessionId
 	const audioElement = use.once(() => {
 		const audio = document.createElement("audio")
 		audio.autoplay = true
@@ -22,7 +24,7 @@ export const ConnectTo = app.shadow_component((use) => {
 			${audioElement}
 			${isHost
 				? HostView({ audioElement, signalServerUrl })
-				: ClientView({ audioElement, signalServerUrl })}
+				: ClientView({ audioElement, signalServerUrl, sessionId })}
 		</div>
 	`
 })

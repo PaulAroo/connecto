@@ -18,22 +18,21 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	>(undefined)
 
 	const startCallSession = async () => {
-		const { session, localStream, peerConnection } = await createCallSession({
+		const session = await createCallSession({
 			audioElement,
 			signalServerUrl,
 		})
 		setSessionDetails(session)
-		use.context.session = session
-		use.context.localStream = localStream
-		use.context.peerConnection = peerConnection
 	}
 
 	const stopCallSession = () => {
-		const { localStream, peerConnection } = use.context
+		const { localStream, peerConnection, terminateSession } = use.context
 		peerConnection?.close()
 		localStream?.getTracks().forEach((track) => {
 			track.stop()
 		})
+		terminateSession()
+		setSessionDetails(undefined)
 	}
 
 	const renderSessionDetails = () => {

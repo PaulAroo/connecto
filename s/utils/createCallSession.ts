@@ -1,6 +1,9 @@
 import { standardRtcConfig } from "sparrow-rtc/x/connect/utils/standard-rtc-config.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
 
+import { app } from "../context/app.js"
+import { SessionInfo } from "../types.js"
+
 export async function createCallSession({
 	audioElement,
 	signalServerUrl,
@@ -84,9 +87,11 @@ export async function createCallSession({
 		label: "call test session",
 	})
 
-	return {
-		session,
-		peerConnection,
-		localStream,
+	app.context.localStream = localStream
+	app.context.peerConnection = peerConnection
+	app.context.terminateSession = () => {
+		connection.signalServer.hosting.terminateSession(session.key)
 	}
+
+	return session as SessionInfo
 }
