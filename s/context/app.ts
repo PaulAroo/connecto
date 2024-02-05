@@ -1,11 +1,12 @@
 import { Nexus, Context, css } from "@benev/slate"
 import { getSessionIdFromUrl } from "../utils/getSessionIdFromUrl.js"
+import { SessionInfo } from "../types.js"
 
-export interface SessionInfo {
-	id: string
-	label: string
-	discoverable: boolean
-}
+// export interface SessionInfo {
+// 	id: string
+// 	label: string
+// 	discoverable: boolean
+// }
 
 export const app = new Nexus(
 	new (class extends Context {
