@@ -1,6 +1,5 @@
 import { standardRtcConfig } from "sparrow-rtc/x/connect/utils/standard-rtc-config.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
-import { queue } from "sparrow-rtc/x/toolbox/queue.js"
 
 export async function joinCallSession({
 	signalServerUrl,
@@ -30,19 +29,14 @@ export async function joinCallSession({
 		},
 	})
 
-	const iceQueue = queue(
-		async (candidates: any[]) =>
+	peerConnection.onicecandidate = async (event) => {
+		const candidate = event.candidate
+		if (candidate) {
 			await connection.signalServer.connecting.submitIceCandidates(
 				sessionId,
 				clientId,
-				candidates
+				[candidate]
 			)
-	)
-
-	peerConnection.onicecandidate = (event) => {
-		const candidate = event.candidate
-		if (candidate) {
-			iceQueue.add(candidate)
 		}
 	}
 
@@ -94,7 +88,6 @@ export async function joinCallSession({
 		clientId,
 		answer
 	)
-	await iceQueue.ready()
 
 	return {
 		clientId,

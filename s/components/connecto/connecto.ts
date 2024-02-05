@@ -26,11 +26,6 @@ export const ConnectTo = app.shadow_component((use) => {
 	use.mount(() => {
 		const sessionId = use.context.sessionId
 		if (sessionId) {
-			// joinCallSession({
-			// 	sessionId,
-			// 	audioElement,
-			// 	signalServerUrl,
-			// })
 			;(async () => {
 				const { clientId, sessionInfo } = await joinCallSession({
 					sessionId,
@@ -116,9 +111,14 @@ export const ConnectTo = app.shadow_component((use) => {
 })
 
 // TODO
-// button to copy session link to github
+// button to copy session link to clipboard
 // refactor entire component
 // feat: client can disconnect from a call
 // create separate views for host and client
 // create handlers and behaviours for different
 //   peer connection states
+// display call duration/state
+
+// what happens on the client side when a host ends a session?
+//     peer connection state becomes disconnected, then goes into error state
+//  how should that be handled
