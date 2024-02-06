@@ -58,7 +58,8 @@ export async function createCallSession({
 							console.log("Online")
 							break
 						case "disconnected":
-							console.log("Disconnecting…")
+							console.log("disconnected")
+							peerDetails.delete(clientId)
 							break
 						case "closed":
 							console.log("Offline")
@@ -71,8 +72,6 @@ export async function createCallSession({
 							break
 					}
 				}
-
-				console.log(peerDetails)
 
 				const offer = await peer.createOffer()
 				peer.setLocalDescription(offer)
