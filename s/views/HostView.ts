@@ -17,6 +17,7 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 		SessionInfo | undefined
 	>(undefined)
 
+	// error handling has to happen here, or at the point when the connection is made
 	const startCallSession = async () => {
 		const session = await createCallSession({
 			audioElement,

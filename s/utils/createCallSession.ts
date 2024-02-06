@@ -12,18 +12,24 @@ export async function createCallSession({
 	audioElement: HTMLAudioElement | null
 }) {
 	let remoteStream: MediaStream = new MediaStream()
+	const peerDetails = new Map<string, RTCPeerConnection>()
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
-	const peerConnection = new RTCPeerConnection(standardRtcConfig)
 
-	localStream.getAudioTracks().forEach((track) => {
-		peerConnection.addTrack(track, localStream)
-	})
+	// how should tracks from multiple clients be handled?
+	const sharedStream: MediaStream = new MediaStream()
 
 	const connection = await connectToSignalServer({
 		url: signalServerUrl,
 		host: {
 			async handleJoiner(clientId) {
-				peerConnection.onicecandidate = async (event) => {
+				const peer = new RTCPeerConnection(standardRtcConfig)
+				peerDetails.set(clientId, peer)
+
+				localStream.getAudioTracks().forEach((track) => {
+					peer.addTrack(track, localStream)
+				})
+
+				peer.onicecandidate = async (event) => {
 					if (event.candidate) {
 						await connection.signalServer.hosting.submitIceCandidates(
 							clientId,
@@ -33,7 +39,7 @@ export async function createCallSession({
 				}
 
 				// get remote audio stream from client
-				peerConnection.ontrack = (event) => {
+				peer.ontrack = (event) => {
 					event.streams[0].getTracks().forEach((track) => {
 						remoteStream.addTrack(track)
 					})
@@ -42,8 +48,8 @@ export async function createCallSession({
 				}
 
 				// manage connection state
-				peerConnection.onconnectionstatechange = () => {
-					switch (peerConnection.connectionState) {
+				peer.onconnectionstatechange = () => {
+					switch (peer.connectionState) {
 						case "new":
 						case "connecting":
 							console.log("Connecting…")
@@ -66,18 +72,20 @@ export async function createCallSession({
 					}
 				}
 
-				const offer = await peerConnection.createOffer()
-				peerConnection.setLocalDescription(offer)
+				console.log(peerDetails)
+
+				const offer = await peer.createOffer()
+				peer.setLocalDescription(offer)
 				return { offer }
 			},
 			async handleAnswer(clientId, answer) {
-				await peerConnection.setRemoteDescription(
-					new RTCSessionDescription(answer)
-				)
+				const peer = peerDetails.get(clientId)!
+				await peer.setRemoteDescription(new RTCSessionDescription(answer))
 			},
 			async handleIceCandidates(clientId, candidates) {
+				const peer = peerDetails.get(clientId)!
 				for (const candidate of candidates)
-					await peerConnection.addIceCandidate(candidate)
+					await peer.addIceCandidate(candidate)
 			},
 		},
 	})
@@ -88,7 +96,7 @@ export async function createCallSession({
 	})
 
 	app.context.localStream = localStream
-	app.context.peerConnection = peerConnection
+	// app.context.peerConnection = peerConnection
 	app.context.terminateSession = () => {
 		connection.signalServer.hosting.terminateSession(session.key)
 	}
