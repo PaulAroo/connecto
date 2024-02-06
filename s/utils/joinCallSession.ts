@@ -16,6 +16,9 @@ export async function joinCallSession({
 	const peerConnection = new RTCPeerConnection(standardRtcConfig)
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
+	app.context.localStream = localStream
+	app.context.peerConnection = peerConnection
+
 	localStream.getTracks().forEach((track) => {
 		peerConnection.addTrack(track, localStream)
 	})
@@ -92,9 +95,6 @@ export async function joinCallSession({
 		clientId,
 		answer
 	)
-
-	app.context.localStream = localStream
-	app.context.peerConnection = peerConnection
 
 	return {
 		clientId,
