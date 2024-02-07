@@ -16,6 +16,9 @@ export async function joinCallSession({
 	const peerConnection = new RTCPeerConnection(standardRtcConfig)
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
+	app.context.localStream = localStream
+	app.context.peerConnection = peerConnection
+
 	localStream.getTracks().forEach((track) => {
 		peerConnection.addTrack(track, localStream)
 	})
@@ -43,16 +46,11 @@ export async function joinCallSession({
 		}
 	}
 
-	// get remote audio stream from client
 	peerConnection.ontrack = (event) => {
-		event.streams[0].getAudioTracks().forEach((track) => {
-			remoteStream.addTrack(track)
-		})
-
+		remoteStream.addTrack(event.track)
 		if (audioElement) audioElement.srcObject = remoteStream
 	}
 
-	// manage connection state
 	peerConnection.onconnectionstatechange = () => {
 		switch (peerConnection.connectionState) {
 			case "new":
@@ -92,9 +90,6 @@ export async function joinCallSession({
 		clientId,
 		answer
 	)
-
-	app.context.localStream = localStream
-	app.context.peerConnection = peerConnection
 
 	return {
 		clientId,

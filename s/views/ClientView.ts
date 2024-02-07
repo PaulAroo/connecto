@@ -1,8 +1,10 @@
 import { html } from "@benev/slate"
 
+import { baseURL } from "../config.js"
 import { app } from "../context/app.js"
 import { SessionInfo } from "../types.js"
 import { joinCallSession } from "../utils/joinCallSession.js"
+
 interface ClientViewProps {
 	sessionId: string
 	signalServerUrl: string
@@ -14,28 +16,34 @@ export const ClientView = app.light_view((use) => (props: ClientViewProps) => {
 	const { sessionId, audioElement, signalServerUrl } = props
 
 	const [clientId, setClientId] = use.state("")
+	const [errorOccured, setErrorOccured] = use.state(false)
 	const [sessionDetails, setSessionDetails] = use.state<
 		SessionInfo | undefined
 	>(undefined)
 
 	use.mount(() => {
 		;(async () => {
-			const { clientId, sessionInfo } = await joinCallSession({
-				sessionId,
-				audioElement,
-				signalServerUrl,
-				handleDisconnect,
-			})
+			try {
+				const { clientId, sessionInfo } = await joinCallSession({
+					sessionId,
+					audioElement,
+					signalServerUrl,
+					handleDisconnect,
+				})
 
-			setClientId(clientId)
-			setSessionDetails(sessionInfo)
+				setClientId(clientId)
+				setSessionDetails(sessionInfo)
+			} catch (error) {
+				console.log(error)
+				setErrorOccured(true)
+				handleDisconnect()
+			}
 		})()
 
 		return () => {}
 	})
 
 	function handleDisconnect() {
-		console.log("called")
 		const { localStream, peerConnection } = use.context
 		peerConnection?.close()
 		localStream?.getTracks().forEach((track) => {
@@ -52,8 +60,13 @@ export const ClientView = app.light_view((use) => (props: ClientViewProps) => {
 					<p>Session label: ${sessionDetails?.label}</p>
 			  `
 			: undefined}
+		${errorOccured
+			? html`
+					<div class="error">
+						<p>Error occcured</p>
+						<a href=${baseURL}>return to homepage</a>
+					</div>
+			  `
+			: undefined}
 	`
 })
-
-// TODO
-//  handle invalid session ID error
