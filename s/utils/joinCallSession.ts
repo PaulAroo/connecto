@@ -46,16 +46,11 @@ export async function joinCallSession({
 		}
 	}
 
-	// get remote audio stream from client
 	peerConnection.ontrack = (event) => {
-		event.streams[0].getAudioTracks().forEach((track) => {
-			remoteStream.addTrack(track)
-		})
-
+		remoteStream.addTrack(event.track)
 		if (audioElement) audioElement.srcObject = remoteStream
 	}
 
-	// manage connection state
 	peerConnection.onconnectionstatechange = () => {
 		switch (peerConnection.connectionState) {
 			case "new":

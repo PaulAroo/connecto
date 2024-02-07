@@ -8,14 +8,13 @@ import { SessionInfo } from "../types.js"
 export async function createCallSession({
 	audioElement,
 	signalServerUrl,
-	setConnectedPeers,
+	peerConnections,
 }: {
 	signalServerUrl: string
-	setConnectedPeers: (v: number) => void
 	audioElement: HTMLAudioElement | null
+	peerConnections: Signal<Map<string, RTCPeerConnection>>
 }) {
 	let remoteStream: MediaStream = new MediaStream()
-	const peerDetails = new Map<string, RTCPeerConnection>()
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
 	const hostTrack = localStream.getAudioTracks()[0]
 	const tracks = new Map<string, MediaStreamTrack>([["host", hostTrack]])
@@ -25,8 +24,8 @@ export async function createCallSession({
 		host: {
 			async handleJoiner(clientId) {
 				const peer = new RTCPeerConnection(standardRtcConfig)
-				peerDetails.set(clientId, peer)
-				setConnectedPeers(peerDetails.size)
+				peerConnections.value.set(clientId, peer)
+				peerConnections.publish()
 
 				tracks.forEach((track, key) => {
 					if (key !== clientId) peer.addTrack(track)
@@ -41,7 +40,6 @@ export async function createCallSession({
 					}
 				}
 
-				// get remote audio stream from client
 				peer.ontrack = (event) => {
 					event.streams[0].getTracks().forEach((track) => {
 						remoteStream.addTrack(track)
@@ -51,7 +49,6 @@ export async function createCallSession({
 					if (audioElement) audioElement.srcObject = remoteStream
 				}
 
-				// manage connection state
 				peer.onconnectionstatechange = () => {
 					switch (peer.connectionState) {
 						case "new":
@@ -63,9 +60,9 @@ export async function createCallSession({
 							break
 						case "disconnected":
 							console.log("disconnected")
-							peerDetails.delete(clientId)
-							setConnectedPeers(peerDetails.size)
+							peerConnections.value.delete(clientId)
 							tracks.delete(clientId)
+							peerConnections.publish()
 							break
 						case "closed":
 							console.log("Offline")
@@ -84,11 +81,11 @@ export async function createCallSession({
 				return { offer }
 			},
 			async handleAnswer(clientId, answer) {
-				const peer = peerDetails.get(clientId)!
+				const peer = peerConnections.value.get(clientId)!
 				await peer.setRemoteDescription(new RTCSessionDescription(answer))
 			},
 			async handleIceCandidates(clientId, candidates) {
-				const peer = peerDetails.get(clientId)!
+				const peer = peerConnections.value.get(clientId)!
 				for (const candidate of candidates)
 					await peer.addIceCandidate(candidate)
 			},
