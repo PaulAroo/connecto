@@ -17,9 +17,8 @@ export async function createCallSession({
 	let remoteStream: MediaStream = new MediaStream()
 	const peerDetails = new Map<string, RTCPeerConnection>()
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
-
-	// how should tracks from multiple clients be handled?
-	const sharedStream: MediaStream = new MediaStream()
+	const hostTrack = localStream.getAudioTracks()[0]
+	const tracks = new Map<string, MediaStreamTrack>([["host", hostTrack]])
 
 	const connection = await connectToSignalServer({
 		url: signalServerUrl,
@@ -29,8 +28,8 @@ export async function createCallSession({
 				peerDetails.set(clientId, peer)
 				setConnectedPeers(peerDetails.size)
 
-				localStream.getAudioTracks().forEach((track) => {
-					peer.addTrack(track, localStream)
+				tracks.forEach((track, key) => {
+					if (key !== clientId) peer.addTrack(track)
 				})
 
 				peer.onicecandidate = async (event) => {
@@ -46,6 +45,7 @@ export async function createCallSession({
 				peer.ontrack = (event) => {
 					event.streams[0].getTracks().forEach((track) => {
 						remoteStream.addTrack(track)
+						tracks.set(clientId, track)
 					})
 
 					if (audioElement) audioElement.srcObject = remoteStream
@@ -65,6 +65,7 @@ export async function createCallSession({
 							console.log("disconnected")
 							peerDetails.delete(clientId)
 							setConnectedPeers(peerDetails.size)
+							tracks.delete(clientId)
 							break
 						case "closed":
 							console.log("Offline")
@@ -100,7 +101,6 @@ export async function createCallSession({
 	})
 
 	app.context.localStream = localStream
-	// app.context.peerConnection = peerConnection
 	app.context.terminateSession = () => {
 		connection.signalServer.hosting.terminateSession(session.key)
 	}

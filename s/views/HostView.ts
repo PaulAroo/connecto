@@ -18,8 +18,6 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	>(undefined)
 	const [connectedPeers, setConnectedPeers] = use.state(0)
 
-	// const peerConnections = use.signal(new Map<string, RTCPeerConnection>())
-
 	// error handling has to happen here, or at the point when the connection is made
 	const startCallSession = async () => {
 		const session = await createCallSession({
@@ -32,6 +30,7 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 
 	const stopCallSession = () => {
 		const { localStream, peerConnection, terminateSession } = use.context
+		// host has to handle closing all peer connections
 		peerConnection?.close()
 		localStream?.getTracks().forEach((track) => {
 			track.stop()
@@ -65,3 +64,6 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 		${renderSessionDetails()}
 	`
 })
+
+// TODO
+//    handle web socket timeout
