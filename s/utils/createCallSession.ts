@@ -1,3 +1,4 @@
+import { Signal } from "@benev/slate"
 import { standardRtcConfig } from "sparrow-rtc/x/connect/utils/standard-rtc-config.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
 
@@ -7,8 +8,10 @@ import { SessionInfo } from "../types.js"
 export async function createCallSession({
 	audioElement,
 	signalServerUrl,
+	setConnectedPeers,
 }: {
 	signalServerUrl: string
+	setConnectedPeers: (v: number) => void
 	audioElement: HTMLAudioElement | null
 }) {
 	let remoteStream: MediaStream = new MediaStream()
@@ -24,6 +27,7 @@ export async function createCallSession({
 			async handleJoiner(clientId) {
 				const peer = new RTCPeerConnection(standardRtcConfig)
 				peerDetails.set(clientId, peer)
+				setConnectedPeers(peerDetails.size)
 
 				localStream.getAudioTracks().forEach((track) => {
 					peer.addTrack(track, localStream)
@@ -60,6 +64,7 @@ export async function createCallSession({
 						case "disconnected":
 							console.log("disconnected")
 							peerDetails.delete(clientId)
+							setConnectedPeers(peerDetails.size)
 							break
 						case "closed":
 							console.log("Offline")

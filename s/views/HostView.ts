@@ -16,12 +16,16 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	const [sessionDetails, setSessionDetails] = use.state<
 		SessionInfo | undefined
 	>(undefined)
+	const [connectedPeers, setConnectedPeers] = use.state(0)
+
+	// const peerConnections = use.signal(new Map<string, RTCPeerConnection>())
 
 	// error handling has to happen here, or at the point when the connection is made
 	const startCallSession = async () => {
 		const session = await createCallSession({
 			audioElement,
 			signalServerUrl,
+			setConnectedPeers,
 		})
 		setSessionDetails(session)
 	}
@@ -47,6 +51,7 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 						>${`${location.href}?session=${sessionDetails.id}`}</a
 					>
 				</p>
+				<p>Peers connected: ${connectedPeers}</p>
 			`
 		}
 	}
