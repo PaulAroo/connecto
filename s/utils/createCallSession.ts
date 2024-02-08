@@ -97,9 +97,17 @@ export async function createCallSession({
 		label: "call test session",
 	})
 
+	const intervalId = setInterval(async () => {
+		const start = Date.now()
+		const serverTime = await connection.signalServer.hosting.keepAlive()
+		const ping = Date.now() - start
+		console.log(`ping ${ping}ms, server time ${serverTime}`)
+	}, 10_000)
+
 	app.context.localStream = localStream
 	app.context.terminateSession = () => {
 		connection.signalServer.hosting.terminateSession(session.key)
+		clearInterval(intervalId)
 	}
 
 	return session as SessionInfo

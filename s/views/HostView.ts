@@ -18,14 +18,17 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	>(undefined)
 	const peerConnections = use.signal(new Map<string, RTCPeerConnection>())
 
-	// error handling has to happen here, or at the point when the connection is made
 	const startCallSession = async () => {
-		const session = await createCallSession({
-			audioElement,
-			signalServerUrl,
-			peerConnections,
-		})
-		setSessionDetails(session)
+		try {
+			const session = await createCallSession({
+				audioElement,
+				signalServerUrl,
+				peerConnections,
+			})
+			setSessionDetails(session)
+		} catch (error) {
+			console.log(2, error)
+		}
 	}
 
 	const stopCallSession = () => {
@@ -65,7 +68,3 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 		${renderSessionDetails()}
 	`
 })
-
-// TODO
-//    handle web socket timeout
-//    how long till timeout, what to do after timeout
