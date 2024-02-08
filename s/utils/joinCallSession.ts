@@ -1,3 +1,4 @@
+import { queue } from "sparrow-rtc/x/toolbox/queue.js"
 import { standardRtcConfig } from "sparrow-rtc/x/connect/utils/standard-rtc-config.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
 import { app } from "../context/app.js"
@@ -11,7 +12,7 @@ export async function joinCallSession({
 	sessionId: string
 	signalServerUrl: string
 	handleDisconnect: () => void
-	audioElement: HTMLAudioElement | null
+	audioElement: HTMLAudioElement
 }) {
 	const peerConnection = new RTCPeerConnection(standardRtcConfig)
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -35,20 +36,30 @@ export async function joinCallSession({
 		},
 	})
 
-	peerConnection.onicecandidate = async (event) => {
-		const candidate = event.candidate
-		if (candidate) {
+	const joined = await connection.signalServer.connecting.joinSession(sessionId)
+	if (!joined) throw new Error("failed to join session")
+
+	const { clientId, sessionInfo } = joined
+
+	const iceQueue = queue(
+		async (candidates: any[]) =>
 			await connection.signalServer.connecting.submitIceCandidates(
 				sessionId,
 				clientId,
-				[candidate]
+				candidates
 			)
+	)
+
+	peerConnection.onicecandidate = async (event) => {
+		const candidate = event.candidate
+		if (candidate) {
+			iceQueue.add(candidate)
 		}
 	}
 
 	peerConnection.ontrack = (event) => {
 		remoteStream.addTrack(event.track)
-		if (audioElement) audioElement.srcObject = remoteStream
+		audioElement.srcObject = remoteStream
 	}
 
 	peerConnection.onconnectionstatechange = () => {
@@ -76,11 +87,6 @@ export async function joinCallSession({
 		}
 	}
 
-	const joined = await connection.signalServer.connecting.joinSession(sessionId)
-	if (!joined) throw new Error("failed to join session")
-
-	const { clientId, sessionInfo } = joined
-
 	await peerConnection.setRemoteDescription(joined.offer)
 	const answer = await peerConnection.createAnswer()
 	await peerConnection.setLocalDescription(new RTCSessionDescription(answer))
@@ -90,6 +96,8 @@ export async function joinCallSession({
 		clientId,
 		answer
 	)
+
+	await iceQueue.ready()
 
 	return {
 		clientId,

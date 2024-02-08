@@ -1,9 +1,10 @@
 import { Signal } from "@benev/slate"
+import { queue } from "sparrow-rtc/x/toolbox/queue.js"
 import { standardRtcConfig } from "sparrow-rtc/x/connect/utils/standard-rtc-config.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
 
 import { app } from "../context/app.js"
-import { SessionInfo } from "../types.js"
+import { PeerConnection, SessionInfo } from "../types.js"
 
 export async function createCallSession({
 	audioElement,
@@ -11,8 +12,8 @@ export async function createCallSession({
 	peerConnections,
 }: {
 	signalServerUrl: string
-	audioElement: HTMLAudioElement | null
-	peerConnections: Signal<Map<string, RTCPeerConnection>>
+	audioElement: HTMLAudioElement
+	peerConnections: Signal<Map<string, PeerConnection>>
 }) {
 	let remoteStream: MediaStream = new MediaStream()
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -24,8 +25,13 @@ export async function createCallSession({
 		host: {
 			async handleJoiner(clientId) {
 				const peer = new RTCPeerConnection(standardRtcConfig)
-				peerConnections.value.set(clientId, peer)
-				peerConnections.publish()
+				const iceQueue = queue(async (candidates: any[]) =>
+					connection.signalServer.hosting.submitIceCandidates(
+						clientId,
+						candidates
+					)
+				)
+				peerConnections.value.set(clientId, { peer, iceQueue })
 
 				tracks.forEach((track, key) => {
 					if (key !== clientId) peer.addTrack(track)
@@ -33,10 +39,7 @@ export async function createCallSession({
 
 				peer.onicecandidate = async (event) => {
 					if (event.candidate) {
-						await connection.signalServer.hosting.submitIceCandidates(
-							clientId,
-							[event.candidate]
-						)
+						iceQueue.add(event.candidate)
 					}
 				}
 
@@ -45,8 +48,7 @@ export async function createCallSession({
 						remoteStream.addTrack(track)
 						tracks.set(clientId, track)
 					})
-
-					if (audioElement) audioElement.srcObject = remoteStream
+					audioElement.srcObject = remoteStream
 				}
 
 				peer.onconnectionstatechange = () => {
@@ -57,6 +59,7 @@ export async function createCallSession({
 							break
 						case "connected":
 							console.log("Online")
+							peerConnections.publish()
 							break
 						case "disconnected":
 							console.log("disconnected")
@@ -81,11 +84,12 @@ export async function createCallSession({
 				return { offer }
 			},
 			async handleAnswer(clientId, answer) {
-				const peer = peerConnections.value.get(clientId)!
+				const { peer, iceQueue } = peerConnections.value.get(clientId)!
 				await peer.setRemoteDescription(new RTCSessionDescription(answer))
+				await iceQueue.ready()
 			},
 			async handleIceCandidates(clientId, candidates) {
-				const peer = peerConnections.value.get(clientId)!
+				const { peer } = peerConnections.value.get(clientId)!
 				for (const candidate of candidates)
 					await peer.addIceCandidate(candidate)
 			},
@@ -98,10 +102,14 @@ export async function createCallSession({
 	})
 
 	const intervalId = setInterval(async () => {
-		const start = Date.now()
-		const serverTime = await connection.signalServer.hosting.keepAlive()
-		const ping = Date.now() - start
-		console.log(`ping ${ping}ms, server time ${serverTime}`)
+		try {
+			const start = Date.now()
+			const serverTime = await connection.signalServer.hosting.keepAlive()
+			const ping = Date.now() - start
+			console.log(`ping ${ping}ms, server time ${serverTime}`)
+		} catch (error) {
+			console.log(2, error)
+		}
 	}, 10_000)
 
 	app.context.localStream = localStream

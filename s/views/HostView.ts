@@ -1,7 +1,7 @@
 import { html } from "@benev/slate"
 
 import { app } from "../context/app.js"
-import { SessionInfo } from "../types.js"
+import { IceQueue, PeerConnection, SessionInfo } from "../types.js"
 import { createCallSession } from "../utils/createCallSession.js"
 
 interface HostViewProps {
@@ -16,7 +16,7 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	const [sessionDetails, setSessionDetails] = use.state<
 		SessionInfo | undefined
 	>(undefined)
-	const peerConnections = use.signal(new Map<string, RTCPeerConnection>())
+	const peerConnections = use.signal(new Map<string, PeerConnection>())
 
 	const startCallSession = async () => {
 		try {
@@ -33,7 +33,7 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 
 	const stopCallSession = () => {
 		const { localStream, terminateSession } = use.context
-		peerConnections.value.forEach((peer) => {
+		peerConnections.value.forEach(({ peer }) => {
 			peer.close()
 		})
 		localStream?.getTracks().forEach((track) => {
