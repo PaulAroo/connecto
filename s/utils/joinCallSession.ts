@@ -1,7 +1,7 @@
 import { queue } from "sparrow-rtc/x/toolbox/queue.js"
-import { standardRtcConfig } from "sparrow-rtc/x/connect/utils/standard-rtc-config.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
 import { app } from "../context/app.js"
+import { standardRtcConfig } from "./standardRtcConfig.js"
 
 export async function joinCallSession({
 	sessionId,
