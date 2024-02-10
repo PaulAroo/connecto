@@ -1,8 +1,9 @@
 import { html } from "@benev/slate"
 
-import { app } from "../context/app.js"
-import { IceQueue, PeerConnection, SessionInfo } from "../types.js"
-import { createCallSession } from "../utils/createCallSession.js"
+import { app } from "../../context/app.js"
+import { PeerConnection, SessionInfo } from "../../types.js"
+import { createCallSession } from "../../utils/createCallSession.js"
+import { renderSessionDetails } from "./utils/renderSessionDetails.js"
 
 interface HostViewProps {
 	audioElement: HTMLAudioElement
@@ -43,28 +44,12 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 		setSessionDetails(undefined)
 	}
 
-	const renderSessionDetails = () => {
-		if (sessionDetails) {
-			return html`
-				<p>session ID: ${sessionDetails.id}</p>
-				<p>session label: ${sessionDetails.label}</p>
-				<p>
-					link to join session:
-					<a href=${`${location.href}?session=${sessionDetails.id}`}
-						>${`${location.href}?session=${sessionDetails.id}`}</a
-					>
-				</p>
-				<p>Peers connected: ${peerConnections.value.size}</p>
-			`
-		}
-	}
-
 	return html`
 		<div>Host a call session</div>
 		<button @click=${startCallSession} .disabled=${!!sessionDetails}>
 			start
 		</button>
 		<button @click=${stopCallSession} .disabled=${!sessionDetails}>stop</button>
-		${renderSessionDetails()}
+		${renderSessionDetails(sessionDetails)}
 	`
 })

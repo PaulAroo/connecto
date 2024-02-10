@@ -25,4 +25,12 @@ export default css`
 	a {
 		color: burlywood;
 	}
+
+	span {
+		color: gray;
+	}
+
+	.session {
+		margin-top: 1em;
+	}
 `
