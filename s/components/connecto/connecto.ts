@@ -2,7 +2,7 @@ import { html } from "@benev/slate"
 
 import styles from "./styles.css.js"
 import { app } from "../../context/app.js"
-import { HostView } from "../../views/HostView.js"
+import { HostView } from "../../views/Host/HostView.js"
 import { ClientView } from "../../views/ClientView.js"
 import { getSessionIdFromUrl } from "../../utils/getSessionIdFromUrl.js"
 
