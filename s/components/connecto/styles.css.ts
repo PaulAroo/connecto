@@ -30,6 +30,14 @@ export default css`
 		color: gray;
 	}
 
+	h4 {
+		margin-top: 1em;
+	}
+
+	ul {
+		margin-left: 1em;
+	}
+
 	.session {
 		margin-top: 1em;
 	}

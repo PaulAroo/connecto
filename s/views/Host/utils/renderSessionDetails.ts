@@ -1,8 +1,9 @@
 import { html } from "@benev/slate"
-import { SessionInfo } from "../../../types.js"
+import { PeerConnection, SessionInfo } from "../../../types.js"
 
 export const renderSessionDetails = (
-	sessionDetails: SessionInfo | undefined
+	sessionDetails: SessionInfo | undefined,
+	peerConnections: Map<string, PeerConnection>
 ) => {
 	if (sessionDetails) {
 		return html`
@@ -16,6 +17,28 @@ export const renderSessionDetails = (
 					>
 				</p>
 			</div>
+			${displayPeers(peerConnections)}
 		`
 	}
+}
+
+function displayPeers(peerConnections: Map<string, PeerConnection>) {
+	const peers = Array.from(peerConnections, ([clientId, peer]) => ({
+		clientId,
+		peer: peer.peer,
+	}))
+
+	return html`
+		<h4>Connected clients:</h4>
+		<ul>
+			${peers.map(
+				({ clientId, peer }) =>
+					html`
+						<li>
+							<p>${clientId} &rarr; <span>${peer.connectionState}</span></p>
+						</li>
+					`
+			)}
+		</ul>
+	`
 }
