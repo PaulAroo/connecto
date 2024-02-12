@@ -2,7 +2,7 @@ import { html } from "@benev/slate"
 
 import { app } from "../../context/app.js"
 import { PeerConnection, SessionInfo } from "../../types.js"
-import { createCallSession } from "../../utils/createCallSession.js"
+import { createCallSession } from "./utils/createCallSession.js"
 import { renderSessionDetails } from "./utils/renderSessionDetails.js"
 
 interface HostViewProps {
@@ -28,7 +28,7 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 			})
 			setSessionDetails(session)
 		} catch (error) {
-			console.log(2, error)
+			console.log(error)
 		}
 	}
 
@@ -50,6 +50,6 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 			start
 		</button>
 		<button @click=${stopCallSession} .disabled=${!sessionDetails}>stop</button>
-		${renderSessionDetails(sessionDetails)}
+		${renderSessionDetails(sessionDetails, peerConnections.value)}
 	`
 })

@@ -2,9 +2,9 @@ import { Signal } from "@benev/slate"
 import { queue } from "sparrow-rtc/x/toolbox/queue.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
 
-import { app } from "../context/app.js"
-import { PeerConnection, SessionInfo } from "../types.js"
-import { standardRtcConfig } from "./standardRtcConfig.js"
+import { app } from "../../../context/app.js"
+import { PeerConnection, SessionInfo } from "../../../types.js"
+import { standardRtcConfig } from "../../../utils/standardRtcConfig.js"
 
 export async function createCallSession({
 	audioElement,
@@ -53,25 +53,19 @@ export async function createCallSession({
 
 				peer.onconnectionstatechange = () => {
 					switch (peer.connectionState) {
-						case "new":
 						case "connecting":
 							console.log("Connecting…")
+							peerConnections.publish()
 							break
 						case "connected":
 							console.log("Online")
 							peerConnections.publish()
 							break
-						case "disconnected":
-							console.log("disconnected")
+						case "failed":
+							console.log("Error")
 							peerConnections.value.delete(clientId)
 							tracks.delete(clientId)
 							peerConnections.publish()
-							break
-						case "closed":
-							console.log("Offline")
-							break
-						case "failed":
-							console.log("Error")
 							break
 						default:
 							console.log("Unknown")
