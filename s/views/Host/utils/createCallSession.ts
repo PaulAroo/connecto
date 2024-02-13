@@ -101,6 +101,7 @@ export async function createCallSession({
 		terminateSession: () => {
 			connection.signalServer.hosting.terminateSession(session.key)
 			clearInterval(intervalId)
+			peerConnections.value.clear()
 		},
 	}
 

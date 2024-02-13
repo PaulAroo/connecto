@@ -28,6 +28,11 @@ function displayPeers(peerConnections: Map<string, PeerConnection>) {
 		peer: peer.peer,
 	}))
 
+	const hasNoClients = !peers.length
+	if (hasNoClients) {
+		return html` <p>no joiners yet</p> `
+	}
+
 	return html`
 		<h4>Connected clients:</h4>
 		<ul>
