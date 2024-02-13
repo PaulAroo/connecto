@@ -5,6 +5,7 @@ import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-si
 import { app } from "../../../context/app.js"
 import { PeerConnection, SessionInfo } from "../../../types.js"
 import { standardRtcConfig } from "../../../utils/standardRtcConfig.js"
+import { handlePeerConnectionStateChange } from "./handlePeerConnectionStateChange.js"
 
 export async function createCallSession({
 	audioElement,
@@ -51,27 +52,15 @@ export async function createCallSession({
 					audioElement.srcObject = remoteStream
 				}
 
-				peer.onconnectionstatechange = () => {
-					switch (peer.connectionState) {
-						case "connecting":
-							console.log("Connecting…")
-							peerConnections.publish()
-							break
-						case "connected":
-							console.log("Online")
-							peerConnections.publish()
-							break
-						case "failed":
-							console.log("Error")
-							peerConnections.value.delete(clientId)
-							tracks.delete(clientId)
-							peerConnections.publish()
-							break
-						default:
-							console.log("Unknown")
-							break
-					}
-				}
+				peer.addEventListener(
+					"connectionstatechange",
+					handlePeerConnectionStateChange({
+						peer,
+						tracks,
+						clientId,
+						peerConnections,
+					})
+				)
 
 				const offer = await peer.createOffer()
 				peer.setLocalDescription(offer)
