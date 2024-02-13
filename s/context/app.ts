@@ -1,5 +1,15 @@
 import { Nexus, Context, css } from "@benev/slate"
 
+interface CLientState {
+	localStream: MediaStream | undefined
+	peer: RTCPeerConnection | undefined
+}
+
+interface HostState {
+	localStream: MediaStream | undefined
+	terminateSession: () => void
+}
+
 export const app = new Nexus(
 	new (class extends Context {
 		theme = css`
@@ -13,7 +23,7 @@ export const app = new Nexus(
 		`
 
 		terminateSession = () => {}
-		localStream: MediaStream | undefined
-		peerConnection: RTCPeerConnection | undefined
+		client = <CLientState>{}
+		host = <HostState>{}
 	})()
 )

@@ -5,7 +5,7 @@ import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-si
 import { app } from "../../../context/app.js"
 import { PeerConnection, SessionInfo } from "../../../types.js"
 import { standardRtcConfig } from "../../../utils/standardRtcConfig.js"
-import { handlePeerConnectionStateChange } from "./handlePeerConnectionStateChange.js"
+import { handleHostConnectionStateChange } from "./handleHostConnectionStateChange.js"
 
 export async function createCallSession({
 	audioElement,
@@ -55,7 +55,7 @@ export async function createCallSession({
 
 				peer.addEventListener(
 					"connectionstatechange",
-					handlePeerConnectionStateChange({
+					handleHostConnectionStateChange({
 						peer,
 						tracks,
 						clientId,
@@ -96,10 +96,12 @@ export async function createCallSession({
 		}
 	}, 10_000)
 
-	app.context.localStream = localStream
-	app.context.terminateSession = () => {
-		connection.signalServer.hosting.terminateSession(session.key)
-		clearInterval(intervalId)
+	app.context.host = {
+		localStream,
+		terminateSession: () => {
+			connection.signalServer.hosting.terminateSession(session.key)
+			clearInterval(intervalId)
+		},
 	}
 
 	return session as SessionInfo

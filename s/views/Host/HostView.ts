@@ -33,7 +33,7 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	}
 
 	const stopCallSession = () => {
-		const { localStream, terminateSession } = use.context
+		const { localStream, terminateSession } = use.context.host
 		peerConnections.value.forEach(({ peer }) => {
 			peer.close()
 		})

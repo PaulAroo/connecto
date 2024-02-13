@@ -1,7 +1,7 @@
 import { Signal } from "@benev/slate"
 import { PeerConnection } from "../../../types.js"
 
-export const handlePeerConnectionStateChange = ({
+export const handleHostConnectionStateChange = ({
 	peer,
 	tracks,
 	clientId,

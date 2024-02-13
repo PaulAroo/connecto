@@ -1,9 +1,9 @@
 import { html } from "@benev/slate"
 
-import { baseURL } from "../config.js"
-import { app } from "../context/app.js"
-import { SessionInfo } from "../types.js"
-import { joinCallSession } from "../utils/joinCallSession.js"
+import { baseURL } from "../../config.js"
+import { app } from "../../context/app.js"
+import { SessionInfo } from "../../types.js"
+import { joinCallSession } from "./utils/joinCallSession.js"
 
 interface ClientViewProps {
 	sessionId: string
@@ -34,7 +34,6 @@ export const ClientView = app.light_view((use) => (props: ClientViewProps) => {
 				setClientId(clientId)
 				setSessionDetails(sessionInfo)
 			} catch (error) {
-				console.log(error)
 				setErrorOccured(true)
 				handleDisconnect()
 			}
@@ -44,8 +43,8 @@ export const ClientView = app.light_view((use) => (props: ClientViewProps) => {
 	})
 
 	function handleDisconnect() {
-		const { localStream, peerConnection } = use.context
-		peerConnection?.close()
+		const { localStream, peer } = use.context.client
+		peer?.close()
 		localStream?.getTracks().forEach((track) => {
 			track.stop()
 		})
