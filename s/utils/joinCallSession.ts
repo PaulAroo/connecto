@@ -1,5 +1,6 @@
 import { queue } from "sparrow-rtc/x/toolbox/queue.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
+
 import { app } from "../context/app.js"
 import { standardRtcConfig } from "./standardRtcConfig.js"
 
@@ -14,17 +15,16 @@ export async function joinCallSession({
 	handleDisconnect: () => void
 	audioElement: HTMLAudioElement
 }) {
+	let remoteStream: MediaStream = new MediaStream()
 	const peerConnection = new RTCPeerConnection(standardRtcConfig)
 	const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
 	app.context.localStream = localStream
 	app.context.peerConnection = peerConnection
 
-	localStream.getTracks().forEach((track) => {
-		peerConnection.addTrack(track, localStream)
+	localStream.getAudioTracks().forEach((track) => {
+		peerConnection.addTrack(track)
 	})
-
-	let remoteStream: MediaStream = new MediaStream()
 
 	const connection = await connectToSignalServer({
 		url: signalServerUrl,

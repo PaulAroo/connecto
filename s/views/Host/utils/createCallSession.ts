@@ -37,19 +37,20 @@ export async function createCallSession({
 				tracks.forEach((track, key) => {
 					if (key !== clientId) peer.addTrack(track)
 				})
+				peer.ontrack = (event) => {
+					remoteStream.addTrack(event.track)
+					tracks.set(clientId, event.track)
+					audioElement.srcObject = remoteStream
+
+					peerConnections.value.forEach(({ peer }, key) => {
+						if (key !== clientId) peer.addTrack(event.track)
+					})
+				}
 
 				peer.onicecandidate = async (event) => {
 					if (event.candidate) {
 						iceQueue.add(event.candidate)
 					}
-				}
-
-				peer.ontrack = (event) => {
-					event.streams[0].getTracks().forEach((track) => {
-						remoteStream.addTrack(track)
-						tracks.set(clientId, track)
-					})
-					audioElement.srcObject = remoteStream
 				}
 
 				peer.addEventListener(
