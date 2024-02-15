@@ -1,6 +1,7 @@
 import { html } from "@benev/slate"
 
 import { app } from "../../context/app.js"
+import { Spinner } from "../spinner/spinner.js"
 import { PeerConnection, SessionInfo } from "../../types.js"
 import { createCallSession } from "./utils/createCallSession.js"
 import { renderSessionDetails } from "./utils/renderSessionDetails.js"
@@ -14,6 +15,7 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	use.name("host-view")
 
 	const { audioElement, signalServerUrl } = props
+	const [loading, setLoading] = use.state(false)
 	const [sessionDetails, setSessionDetails] = use.state<
 		SessionInfo | undefined
 	>(undefined)
@@ -21,14 +23,17 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 
 	const startCallSession = async () => {
 		try {
+			setLoading(true)
 			const session = await createCallSession({
 				audioElement,
 				signalServerUrl,
 				peerConnections,
 			})
 			setSessionDetails(session)
+			setLoading(false)
 		} catch (error) {
 			console.log(error)
+			setLoading(false)
 		}
 	}
 
@@ -46,10 +51,16 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 
 	return html`
 		<div>Host a call session</div>
-		<button @click=${startCallSession} .disabled=${!!sessionDetails}>
-			start
-		</button>
-		<button @click=${stopCallSession} .disabled=${!sessionDetails}>stop</button>
-		${renderSessionDetails(sessionDetails, peerConnections.value)}
+		${loading
+			? html`${Spinner([])}`
+			: html`
+					<button @click=${startCallSession} .disabled=${!!sessionDetails}>
+						start
+					</button>
+					<button @click=${stopCallSession} .disabled=${!sessionDetails}>
+						stop
+					</button>
+					${renderSessionDetails(sessionDetails, peerConnections.value)}
+			  `}
 	`
 })
