@@ -58,19 +58,24 @@ export default css`
 			p {
 				color: lightgray;
 			}
+
+			button {
+				border: none;
+				margin-top: 0;
+				padding: 0;
+				font-size: 1.2rem;
+				display: flex;
+				color: lightskyblue;
+				transition: all 0.3s ease;
+
+				&:active {
+					transform: scale(0.8);
+				}
+			}
 		}
 
 		p {
 			color: gray;
-		}
-
-		button {
-			border: none;
-			margin-top: 0;
-			padding: 0;
-			font-size: 1.2rem;
-			display: flex;
-			color: lightskyblue;
 		}
 	}
 `

@@ -8,6 +8,11 @@ export const renderSessionDetails = (
 	peerConnections: Map<string, PeerConnection>
 ) => {
 	if (sessionDetails) {
+		const inviteLink = `${baseURL}?session=${sessionDetails.id}`
+		const copyToClipboard = () => {
+			navigator.clipboard.writeText(inviteLink)
+		}
+
 		return html`
 			<div class="session">
 				<p><span>session ID: </span>${sessionDetails.id}</p>
@@ -15,8 +20,8 @@ export const renderSessionDetails = (
 				<div class="link">
 					<p>invite link</p>
 					<div class="card">
-						<p>${`${baseURL}?session=${sessionDetails.id}`}</p>
-						<button>${clipboardIcon}</button>
+						<p>${inviteLink}</p>
+						<button @click=${copyToClipboard}>${clipboardIcon}</button>
 					</div>
 				</div>
 			</div>
