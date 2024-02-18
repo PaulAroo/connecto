@@ -41,4 +41,36 @@ export default css`
 	.session {
 		margin-top: 1em;
 	}
+
+	.link {
+		margin-top: 0.5em;
+
+		.card {
+			display: flex;
+			gap: 1rem;
+			align-items: center;
+			margin-bottom: 1em;
+			padding: 0.2em 0.5em;
+			border-radius: 8px;
+			box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px,
+				rgba(0, 0, 0, 0.23) 0px 3px 6px;
+
+			p {
+				color: lightgray;
+			}
+		}
+
+		p {
+			color: gray;
+		}
+
+		button {
+			border: none;
+			margin-top: 0;
+			padding: 0;
+			font-size: 1.2rem;
+			display: flex;
+			color: lightskyblue;
+		}
+	}
 `
