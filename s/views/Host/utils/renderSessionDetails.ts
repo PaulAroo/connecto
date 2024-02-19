@@ -1,7 +1,8 @@
 import { html } from "@benev/slate"
-import { PeerConnection, SessionInfo } from "../../../types.js"
-import { clipboardIcon } from "../../../icons/tabler/ClipboardIcon.js"
+
 import { baseURL } from "../../../config.js"
+import { Clipboard } from "../../Clipboard/Clipboard.js"
+import { PeerConnection, SessionInfo } from "../../../types.js"
 
 export const renderSessionDetails = (
 	sessionDetails: SessionInfo | undefined,
@@ -21,7 +22,7 @@ export const renderSessionDetails = (
 					<p>invite link</p>
 					<div class="card">
 						<p>${inviteLink}</p>
-						<button @click=${copyToClipboard}>${clipboardIcon}</button>
+						${Clipboard([inviteLink])}
 					</div>
 				</div>
 			</div>

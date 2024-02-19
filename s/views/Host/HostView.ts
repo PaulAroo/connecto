@@ -1,7 +1,7 @@
 import { html } from "@benev/slate"
 
 import { app } from "../../context/app.js"
-import { Spinner } from "../spinner/spinner.js"
+import { Spinner } from "../spinner/Spinner.js"
 import { PeerConnection, SessionInfo } from "../../types.js"
 import { createCallSession } from "./utils/createCallSession.js"
 import { renderSessionDetails } from "./utils/renderSessionDetails.js"

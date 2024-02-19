@@ -3,7 +3,7 @@ import { html } from "@benev/slate"
 import { baseURL } from "../../config.js"
 import { app } from "../../context/app.js"
 import { SessionInfo } from "../../types.js"
-import { Spinner } from "../spinner/spinner.js"
+import { Spinner } from "../spinner/Spinner.js"
 import { joinCallSession } from "./utils/joinCallSession.js"
 
 interface ClientViewProps {
