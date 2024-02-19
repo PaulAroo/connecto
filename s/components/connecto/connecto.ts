@@ -31,6 +31,5 @@ export const ConnectTo = app.shadow_component((use) => {
 })
 
 // TODO
-// button to copy session link to clipboard
 // feat: client can disconnect from a call
 // display call duration/state
