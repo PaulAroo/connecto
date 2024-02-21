@@ -1,4 +1,4 @@
-import { Nexus, Context, css } from "@benev/slate"
+import { Nexus, Context, css, watch, ZipAction } from "@benev/slate"
 
 interface CLientState {
 	localStream: MediaStream | undefined
@@ -21,6 +21,23 @@ export const app = new Nexus(
 				box-sizing: border-box;
 			}
 		`
+
+		#counterStore = watch.stateTree<{ count: number }>({
+			count: 0,
+		})
+
+		get state() {
+			return this.#counterStore.state
+		}
+
+		actions = ZipAction.actualize(
+			this.#counterStore,
+			ZipAction.blueprint<{ count: number }>()({
+				increment: (state) => () => {
+					state.count++
+				},
+			})
+		)
 
 		terminateSession = () => {}
 		client = <CLientState>{}

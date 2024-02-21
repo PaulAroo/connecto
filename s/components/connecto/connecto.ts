@@ -10,6 +10,7 @@ const signalServerUrl = "wss://sparrow-rtc.benevolent.games/"
 
 export const ConnectTo = app.shadow_component((use) => {
 	use.styles(styles)
+	const count = use.watch(() => use.context.state.count)
 
 	const sessionId = getSessionIdFromUrl()
 	const isHost = !sessionId
@@ -26,10 +27,9 @@ export const ConnectTo = app.shadow_component((use) => {
 			${isHost
 				? HostView({ audioElement, signalServerUrl })
 				: ClientView({ audioElement, signalServerUrl, sessionId })}
+
+			<button @click=${use.context.actions.increment}>increment</button>
+			<p>count: ${count}</p>
 		</div>
 	`
 })
-
-// TODO
-// feat: client can disconnect from a call
-// display call duration/state
