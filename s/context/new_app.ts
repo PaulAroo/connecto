@@ -1,8 +1,8 @@
-import { Nexus, Context, css, watch } from "@benev/slate"
+import { Nexus, Context, css, watch, ZipAction } from "@benev/slate"
 
 import { State } from "./types.js"
-import { hostState } from "./hostManager.js"
-import { clientState } from "./clientManager.js"
+import { hostActions, hostState } from "./hostManager.js"
+import { clientActions, clientState } from "./clientManager.js"
 
 export const app = new Nexus(
 	new (class extends Context {
@@ -19,10 +19,15 @@ export const app = new Nexus(
 		#state = watch.stateTree<State>({
 			streams: {
 				local: undefined,
-				remote: undefined,
+				remote: new MediaStream(),
 			},
 			client: clientState,
 			host: hostState,
+		})
+
+		actions = ZipAction.actualize(this.#state, {
+			host: hostActions,
+			client: clientActions,
 		})
 
 		get state() {

@@ -1,14 +1,15 @@
+import { ClientState } from "./types.js"
+import { actionize } from "./utils/actionize.js"
 import { standardRtcConfig } from "../config.js"
-import { ClientActions, ClientState } from "./types.js"
 
 const clientState: ClientState = {
 	session: undefined,
 	peer: new RTCPeerConnection(standardRtcConfig),
 }
 
-const clientActions: ClientActions = {
-	startCall: async () => {},
-	endCall: async () => {},
-}
+const clientActions = actionize({
+	startCall: (state) => async () => {},
+	endCall: (state) => async () => {},
+})
 
 export { clientState, clientActions }
