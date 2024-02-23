@@ -8,13 +8,12 @@ import { joinCallSession } from "./utils/joinCallSession.js"
 
 interface ClientViewProps {
 	sessionId: string
-	signalServerUrl: string
 	audioElement: HTMLAudioElement
 }
 
 export const ClientView = app.light_view((use) => (props: ClientViewProps) => {
 	use.name("client-view")
-	const { sessionId, audioElement, signalServerUrl } = props
+	const { sessionId, audioElement } = props
 
 	const [clientId, setClientId] = use.state("")
 	const [loading, setLoading] = use.state(false)
@@ -30,7 +29,6 @@ export const ClientView = app.light_view((use) => (props: ClientViewProps) => {
 				const { clientId, sessionInfo } = await joinCallSession({
 					sessionId,
 					audioElement,
-					signalServerUrl,
 					handleDisconnect,
 				})
 				setClientId(clientId)

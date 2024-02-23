@@ -8,13 +8,12 @@ import { renderSessionDetails } from "./utils/renderSessionDetails.js"
 
 interface HostViewProps {
 	audioElement: HTMLAudioElement
-	signalServerUrl: string
 }
 
 export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	use.name("host-view")
 
-	const { audioElement, signalServerUrl } = props
+	const { audioElement } = props
 	const [loading, setLoading] = use.state(false)
 	const [sessionDetails, setSessionDetails] = use.state<
 		SessionInfo | undefined
@@ -26,7 +25,6 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 			setLoading(true)
 			const session = await createCallSession({
 				audioElement,
-				signalServerUrl,
 				peerConnections,
 			})
 			setSessionDetails(session)

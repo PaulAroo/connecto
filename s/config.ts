@@ -24,3 +24,5 @@ export const standardRtcConfig: RTCConfiguration = {
 		},
 	],
 }
+
+export const signalServerUrl = "wss://sparrow-rtc.benevolent.games/"

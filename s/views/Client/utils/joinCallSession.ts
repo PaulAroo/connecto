@@ -2,17 +2,15 @@ import { queue } from "sparrow-rtc/x/toolbox/queue.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
 
 import { app } from "../../../context/app.js"
-import { standardRtcConfig } from "../../../utils/standardRtcConfig.js"
+import { signalServerUrl, standardRtcConfig } from "../../../config.js"
 import { handleClientConnectionStateChange } from "./handleClientConnectionStateChange.js"
 
 export async function joinCallSession({
 	sessionId,
 	audioElement,
-	signalServerUrl,
 	handleDisconnect,
 }: {
 	sessionId: string
-	signalServerUrl: string
 	handleDisconnect: () => void
 	audioElement: HTMLAudioElement
 }) {

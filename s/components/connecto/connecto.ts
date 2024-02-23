@@ -6,11 +6,8 @@ import { HostView } from "../../views/Host/HostView.js"
 import { ClientView } from "../../views/Client/ClientView.js"
 import { getSessionIdFromUrl } from "../../utils/getSessionIdFromUrl.js"
 
-const signalServerUrl = "wss://sparrow-rtc.benevolent.games/"
-
 export const ConnectTo = app.shadow_component((use) => {
 	use.styles(styles)
-	const count = use.watch(() => use.context.state.count)
 
 	const sessionId = getSessionIdFromUrl()
 	const isHost = !sessionId
@@ -25,11 +22,8 @@ export const ConnectTo = app.shadow_component((use) => {
 		<div class="container">
 			${audioElement}
 			${isHost
-				? HostView({ audioElement, signalServerUrl })
-				: ClientView({ audioElement, signalServerUrl, sessionId })}
-
-			<button @click=${use.context.actions.increment}>increment</button>
-			<p>count: ${count}</p>
+				? HostView({ audioElement })
+				: ClientView({ audioElement, sessionId })}
 		</div>
 	`
 })

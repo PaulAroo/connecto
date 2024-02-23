@@ -4,15 +4,13 @@ import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-si
 
 import { app } from "../../../context/app.js"
 import { PeerConnection, SessionInfo } from "../../../types.js"
-import { standardRtcConfig } from "../../../utils/standardRtcConfig.js"
+import { signalServerUrl, standardRtcConfig } from "../../../config.js"
 import { handleHostConnectionStateChange } from "./handleHostConnectionStateChange.js"
 
 export async function createCallSession({
 	audioElement,
-	signalServerUrl,
 	peerConnections,
 }: {
-	signalServerUrl: string
 	audioElement: HTMLAudioElement
 	peerConnections: Signal<Map<string, PeerConnection>>
 }) {
