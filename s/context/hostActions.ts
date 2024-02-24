@@ -13,6 +13,7 @@ export const prepareHostActions = (): HostActions => {
 	let sessionKey: string
 	let terminateSession: (key: string) => Promise<void>
 
+	// TODO: refactor startcall function
 	return {
 		async startCall(audioElement: HTMLAudioElement) {
 			const clients = app.context.clients
@@ -105,14 +106,13 @@ export const prepareHostActions = (): HostActions => {
 			clients.forEach(({ peer }) => {
 				peer.close()
 			})
-			console.log(localStream)
 			localStream.getTracks().forEach((track) => {
 				track.stop()
 			})
 			await terminateSession(sessionKey)
+			app.context.state.session = undefined
 			clearInterval(intervalId)
 			clients.clear()
-			app.context.state.session = undefined
 			watch.dispatch()
 		},
 	}
