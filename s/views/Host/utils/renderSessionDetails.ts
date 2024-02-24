@@ -2,11 +2,11 @@ import { html } from "@benev/slate"
 
 import { baseURL } from "../../../config.js"
 import { Clipboard } from "../../Clipboard/Clipboard.js"
-import { PeerConnection, SessionInfo } from "../../../types.js"
+import { Peer, SessionInfo } from "../../../types.js"
 
 export const renderSessionDetails = (
 	sessionDetails: SessionInfo | undefined,
-	peerConnections: Map<string, PeerConnection>
+	peerConnections: Map<string, Peer>
 ) => {
 	if (sessionDetails) {
 		const inviteLink = `${baseURL}?session=${sessionDetails.id}`
@@ -31,7 +31,7 @@ export const renderSessionDetails = (
 	}
 }
 
-function displayPeers(peerConnections: Map<string, PeerConnection>) {
+function displayPeers(peerConnections: Map<string, Peer>) {
 	const peers = Array.from(peerConnections, ([clientId, peer]) => ({
 		clientId,
 		peer: peer.peer,

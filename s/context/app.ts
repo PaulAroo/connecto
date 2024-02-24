@@ -1,14 +1,7 @@
-import { Nexus, Context, css, watch } from "@benev/slate"
-
-interface CLientState {
-	localStream: MediaStream | undefined
-	peer: RTCPeerConnection | undefined
-}
-
-interface HostState {
-	localStream: MediaStream | undefined
-	terminateSession: () => void
-}
+import { Nexus, Context, css } from "@benev/slate"
+import { Actions, State, Streams } from "./types.js"
+import { prepareHostActions } from "./hostActions.js"
+import { Peer } from "../types.js"
 
 export const app = new Nexus(
 	new (class extends Context {
@@ -22,8 +15,15 @@ export const app = new Nexus(
 			}
 		`
 
-		terminateSession = () => {}
-		client = <CLientState>{}
-		host = <HostState>{}
+		state: State = {
+			session: undefined,
+			noOfClients: 0,
+		}
+
+		clients = new Map<string, Peer>()
+		actions: Actions = {
+			host: prepareHostActions(),
+			client: {},
+		}
 	})()
 )
