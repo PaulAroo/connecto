@@ -56,12 +56,7 @@ export const prepareHostActions = (): HostActions => {
 
 						peer.addEventListener(
 							"connectionstatechange",
-							handleHostConnectionStateChange({
-								peer,
-								tracks,
-								clientId,
-								peerConnections: clients,
-							})
+							handleHostConnectionStateChange(clientId, peer, clients, tracks)
 						)
 
 						const offer = await peer.createOffer()

@@ -1,17 +1,12 @@
-import { Signal, watch } from "@benev/slate"
+import { watch } from "@benev/slate"
 import { Peer } from "../../../types.js"
 
-export const handleHostConnectionStateChange = ({
-	peer,
-	tracks,
-	clientId,
-	peerConnections,
-}: {
-	clientId: string
-	peer: RTCPeerConnection
+export const handleHostConnectionStateChange = (
+	clientId: string,
+	peer: RTCPeerConnection,
+	clients: Map<string, Peer>,
 	tracks: Map<string, MediaStreamTrack>
-	peerConnections: Map<string, Peer>
-}) => {
+) => {
 	return () => {
 		const isDisconnected =
 			peer.connectionState === "failed" ||
@@ -19,7 +14,7 @@ export const handleHostConnectionStateChange = ({
 			peer.connectionState === "disconnected"
 
 		if (isDisconnected) {
-			peerConnections.delete(clientId)
+			clients.delete(clientId)
 			tracks.delete(clientId)
 		}
 
