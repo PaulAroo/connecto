@@ -2,17 +2,14 @@ import { html } from "@benev/slate"
 
 import { baseURL } from "../../../config.js"
 import { Clipboard } from "../../Clipboard/Clipboard.js"
-import { PeerConnection, SessionInfo } from "../../../types.js"
+import { Client, Peer, SessionInfo } from "../../../types.js"
 
 export const renderSessionDetails = (
 	sessionDetails: SessionInfo | undefined,
-	peerConnections: Map<string, PeerConnection>
+	clients: Client[]
 ) => {
 	if (sessionDetails) {
 		const inviteLink = `${baseURL}?session=${sessionDetails.id}`
-		const copyToClipboard = () => {
-			navigator.clipboard.writeText(inviteLink)
-		}
 
 		return html`
 			<div class="session">
@@ -26,33 +23,17 @@ export const renderSessionDetails = (
 					</div>
 				</div>
 			</div>
-			${displayPeers(peerConnections)}
+			<h4>Clients:</h4>
+			<ul>
+				${clients.map(
+					({ id, connectionState }) =>
+						html`
+							<li>
+								<p>${id} &rarr; <span>${connectionState}</span></p>
+							</li>
+						`
+				)}
+			</ul>
 		`
 	}
-}
-
-function displayPeers(peerConnections: Map<string, PeerConnection>) {
-	const peers = Array.from(peerConnections, ([clientId, peer]) => ({
-		clientId,
-		peer: peer.peer,
-	}))
-
-	const hasNoClients = !peers.length
-	if (hasNoClients) {
-		return html` <span>no joiners yet</span> `
-	}
-
-	return html`
-		<h4>Connected clients:</h4>
-		<ul>
-			${peers.map(
-				({ clientId, peer }) =>
-					html`
-						<li>
-							<p>${clientId} &rarr; <span>${peer.connectionState}</span></p>
-						</li>
-					`
-			)}
-		</ul>
-	`
 }

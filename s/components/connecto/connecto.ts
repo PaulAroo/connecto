@@ -6,8 +6,6 @@ import { HostView } from "../../views/Host/HostView.js"
 import { ClientView } from "../../views/Client/ClientView.js"
 import { getSessionIdFromUrl } from "../../utils/getSessionIdFromUrl.js"
 
-const signalServerUrl = "wss://sparrow-rtc.benevolent.games/"
-
 export const ConnectTo = app.shadow_component((use) => {
 	use.styles(styles)
 
@@ -24,12 +22,8 @@ export const ConnectTo = app.shadow_component((use) => {
 		<div class="container">
 			${audioElement}
 			${isHost
-				? HostView({ audioElement, signalServerUrl })
-				: ClientView({ audioElement, signalServerUrl, sessionId })}
+				? HostView({ audioElement })
+				: ClientView({ audioElement, sessionId })}
 		</div>
 	`
 })
-
-// TODO
-// feat: client can disconnect from a call
-// display call duration/state

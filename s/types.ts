@@ -8,7 +8,12 @@ export type SessionInfo = {
 
 export type IceQueue = ReturnType<typeof queue>
 
-export type PeerConnection = {
+export type Peer = {
 	peer: RTCPeerConnection
 	iceQueue: IceQueue
+}
+
+export type Client = {
+	id: string
+	connectionState: RTCPeerConnectionState
 }
