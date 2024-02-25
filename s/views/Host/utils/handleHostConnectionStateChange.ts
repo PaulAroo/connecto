@@ -1,5 +1,6 @@
 import { watch } from "@benev/slate"
 import { Peer } from "../../../types.js"
+import { app } from "../../../context/app.js"
 
 export const handleHostConnectionStateChange = (
 	clientId: string,
@@ -18,6 +19,7 @@ export const handleHostConnectionStateChange = (
 			tracks.delete(clientId)
 		}
 
+		app.context.state.noOfClients = clients.size
 		watch.dispatch()
 	}
 }

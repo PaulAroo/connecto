@@ -1,7 +1,9 @@
 import { Nexus, Context, css } from "@benev/slate"
-import { Actions, State, Streams } from "./types.js"
-import { prepareHostActions } from "./hostActions.js"
+
 import { Peer } from "../types.js"
+import { Actions, State } from "./types.js"
+import { prepareHostActions } from "./hostActions.js"
+import { prepareClientActions } from "./clientActions.js"
 
 export const app = new Nexus(
 	new (class extends Context {
@@ -23,7 +25,7 @@ export const app = new Nexus(
 		clients = new Map<string, Peer>()
 		actions: Actions = {
 			host: prepareHostActions(),
-			client: {},
+			client: prepareClientActions(),
 		}
 	})()
 )

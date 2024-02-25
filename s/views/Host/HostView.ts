@@ -12,6 +12,7 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	use.name("host-view")
 	const { audioElement } = props
 	const [loading, setLoading] = use.state(false)
+	use.watch(() => use.context.state.noOfClients)
 	const session = use.watch(() => use.context.state.session)
 
 	const clients = use.context.clients

@@ -6,7 +6,11 @@ export interface HostActions {
 }
 
 export interface ClientActions {
-	// joinCall: () => Promise<void>
+	joinCall: (
+		sessionId: string,
+		audioElement: HTMLAudioElement
+	) => Promise<string>
+	disconnect: () => void
 }
 
 export interface Actions {

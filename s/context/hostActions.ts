@@ -54,20 +54,24 @@ export const prepareHostActions = (): HostActions => {
 							}
 						}
 
-						peer.addEventListener(
-							"connectionstatechange",
-							handleHostConnectionStateChange(clientId, peer, clients, tracks)
+						peer.onconnectionstatechange = handleHostConnectionStateChange(
+							clientId,
+							peer,
+							clients,
+							tracks
 						)
 
 						const offer = await peer.createOffer()
 						peer.setLocalDescription(offer)
 						return { offer }
 					},
+
 					async handleAnswer(clientId, answer) {
 						const { peer, iceQueue } = clients.get(clientId)!
 						await peer.setRemoteDescription(new RTCSessionDescription(answer))
 						await iceQueue.ready()
 					},
+
 					async handleIceCandidates(clientId, candidates) {
 						const { peer } = clients.get(clientId)!
 						for (const candidate of candidates)
