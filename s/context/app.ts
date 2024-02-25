@@ -1,6 +1,5 @@
 import { Nexus, Context, css } from "@benev/slate"
 
-import { Peer } from "../types.js"
 import { Actions, State } from "./types.js"
 import { prepareHostActions } from "./hostActions.js"
 import { prepareClientActions } from "./clientActions.js"
@@ -16,13 +15,10 @@ export const app = new Nexus(
 				box-sizing: border-box;
 			}
 		`
-
 		state: State = {
 			session: undefined,
-			noOfClients: 0,
+			clients: [],
 		}
-
-		clients = new Map<string, Peer>()
 		actions: Actions = {
 			host: prepareHostActions(),
 			client: prepareClientActions(),

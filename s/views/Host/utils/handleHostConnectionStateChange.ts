@@ -4,22 +4,26 @@ import { app } from "../../../context/app.js"
 
 export const handleHostConnectionStateChange = (
 	clientId: string,
-	peer: RTCPeerConnection,
-	clients: Map<string, Peer>,
-	tracks: Map<string, MediaStreamTrack>
+	peer: RTCPeerConnection
 ) => {
 	return () => {
-		const isDisconnected =
-			peer.connectionState === "failed" ||
-			peer.connectionState === "closed" ||
+		const shouldUpdate =
+			peer.connectionState === "connecting" ||
+			peer.connectionState === "connected" ||
 			peer.connectionState === "disconnected"
 
-		if (isDisconnected) {
-			clients.delete(clientId)
-			tracks.delete(clientId)
+		const shouldDisconnect =
+			peer.connectionState === "failed" || peer.connectionState === "closed"
+
+		if (shouldUpdate) {
+			app.context.actions.host.updateClientConnectionState({
+				id: clientId,
+				connectionState: peer.connectionState,
+			})
 		}
 
-		app.context.state.noOfClients = clients.size
-		watch.dispatch()
+		if (shouldDisconnect) {
+			app.context.actions.host.removeClient(clientId)
+		}
 	}
 }

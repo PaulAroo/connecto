@@ -1,8 +1,11 @@
-import { SessionInfo } from "../types.js"
+import { Client, SessionInfo } from "../types.js"
 
 export interface HostActions {
-	startCall: (audioElement: HTMLAudioElement) => Promise<void>
 	endCall: () => Promise<void>
+	addClient: (id: string) => void
+	removeClient: (id: string) => void
+	updateClientConnectionState: (client: Client) => void
+	startCall: (audioElement: HTMLAudioElement) => Promise<void>
 }
 
 export interface ClientActions {
@@ -24,6 +27,6 @@ export interface Streams {
 }
 
 export interface State {
-	noOfClients: number
 	session: SessionInfo | undefined
+	clients: Client[]
 }

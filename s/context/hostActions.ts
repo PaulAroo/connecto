@@ -1,10 +1,12 @@
+import { watch } from "@benev/slate"
+import { queue } from "sparrow-rtc/x/toolbox/queue.js"
 import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
+
+import { app } from "./app.js"
+import { Peer } from "../types.js"
 import { HostActions } from "./types.js"
 import { signalServerUrl, standardRtcConfig } from "../config.js"
-import { queue } from "sparrow-rtc/x/toolbox/queue.js"
-import { app } from "./app.js"
 import { handleHostConnectionStateChange } from "../views/Host/utils/handleHostConnectionStateChange.js"
-import { watch } from "@benev/slate"
 
 export const prepareHostActions = (): HostActions => {
 	let intervalId: number
@@ -12,11 +14,11 @@ export const prepareHostActions = (): HostActions => {
 	let tracks: Map<string, MediaStreamTrack>
 	let sessionKey: string
 	let terminateSession: (key: string) => Promise<void>
+	const peerConnections = new Map<string, Peer>()
 
 	// TODO: refactor startcall function
 	return {
-		async startCall(audioElement: HTMLAudioElement) {
-			const clients = app.context.clients
+		async startCall(audioElement) {
 			let remoteStream: MediaStream = new MediaStream()
 			localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
 			const hostTrack = localStream.getAudioTracks()[0]
@@ -33,17 +35,19 @@ export const prepareHostActions = (): HostActions => {
 								candidates
 							)
 						)
-						clients.set(clientId, { peer, iceQueue })
+						peerConnections.set(clientId, { peer, iceQueue })
+						app.context.actions.host.addClient(clientId)
 
 						tracks.forEach((track, key) => {
 							if (key !== clientId) peer.addTrack(track)
 						})
+
 						peer.ontrack = (event) => {
 							remoteStream.addTrack(event.track)
 							tracks.set(clientId, event.track)
 							audioElement.srcObject = remoteStream
 
-							clients.forEach(({ peer }, key) => {
+							peerConnections.forEach(({ peer }, key) => {
 								if (key !== clientId) peer.addTrack(event.track)
 							})
 						}
@@ -56,9 +60,7 @@ export const prepareHostActions = (): HostActions => {
 
 						peer.onconnectionstatechange = handleHostConnectionStateChange(
 							clientId,
-							peer,
-							clients,
-							tracks
+							peer
 						)
 
 						const offer = await peer.createOffer()
@@ -67,13 +69,13 @@ export const prepareHostActions = (): HostActions => {
 					},
 
 					async handleAnswer(clientId, answer) {
-						const { peer, iceQueue } = clients.get(clientId)!
+						const { peer, iceQueue } = peerConnections.get(clientId)!
 						await peer.setRemoteDescription(new RTCSessionDescription(answer))
 						await iceQueue.ready()
 					},
 
 					async handleIceCandidates(clientId, candidates) {
-						const { peer } = clients.get(clientId)!
+						const { peer } = peerConnections.get(clientId)!
 						for (const candidate of candidates)
 							await peer.addIceCandidate(candidate)
 					},
@@ -101,17 +103,40 @@ export const prepareHostActions = (): HostActions => {
 			}, 10_000)
 		},
 		async endCall() {
-			const clients = app.context.clients
-			clients.forEach(({ peer }) => {
+			app.context.state.session = undefined
+			app.context.state.clients = []
+			watch.dispatch()
+			peerConnections.forEach(({ peer }) => {
 				peer.close()
 			})
 			localStream.getTracks().forEach((track) => {
 				track.stop()
 			})
 			await terminateSession(sessionKey)
-			app.context.state.session = undefined
 			clearInterval(intervalId)
-			clients.clear()
+			peerConnections.clear()
+		},
+		updateClientConnectionState(client) {
+			const clients = app.context.state.clients
+			app.context.state.clients = clients.map((c) =>
+				c.id === client.id
+					? { ...c, connectionState: client.connectionState }
+					: c
+			)
+			watch.dispatch()
+		},
+		addClient(clientId) {
+			const clients = app.context.state.clients
+			app.context.state.clients = [
+				...clients,
+				{ id: clientId, connectionState: "new" },
+			]
+		},
+		removeClient(id) {
+			const clients = app.context.state.clients
+			app.context.state.clients = clients.filter((c) => c.id !== id)
+			peerConnections.delete(id)
+			tracks.delete(id)
 			watch.dispatch()
 		},
 	}

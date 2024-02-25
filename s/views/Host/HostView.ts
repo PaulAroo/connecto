@@ -12,10 +12,9 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 	use.name("host-view")
 	const { audioElement } = props
 	const [loading, setLoading] = use.state(false)
-	use.watch(() => use.context.state.noOfClients)
+	const clients = use.watch(() => use.context.state.clients)
 	const session = use.watch(() => use.context.state.session)
 
-	const clients = use.context.clients
 	const { startCall, endCall } = use.context.actions.host
 	const startCallSession = async () => {
 		try {

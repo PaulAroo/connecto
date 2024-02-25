@@ -12,3 +12,8 @@ export type Peer = {
 	peer: RTCPeerConnection
 	iceQueue: IceQueue
 }
+
+export type Client = {
+	id: string
+	connectionState: RTCPeerConnectionState
+}
