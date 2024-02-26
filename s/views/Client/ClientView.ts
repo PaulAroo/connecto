@@ -22,7 +22,6 @@ export const ClientView = app.light_view((use) => (props: ClientViewProps) => {
 	use.mount(() => {
 		setLoading(true)
 		;(async () => {
-			console.log("call")
 			try {
 				const clientId = await joinCall(sessionId, audioElement)
 				setClientId(clientId)
@@ -48,6 +47,7 @@ export const ClientView = app.light_view((use) => (props: ClientViewProps) => {
 					<div>Joined a call session</div>
 					<p>Client ID: ${clientId}</p>
 					<p>Session label: ${sessionDetails?.label}</p>
+					<button @click=${disconnect}>end call</button>
 			  `
 			: undefined}
 		${errorOccured

@@ -8,12 +8,13 @@ import { app } from "./app.js"
 
 export const prepareClientActions = (): ClientActions => {
 	let localStream: MediaStream
+	let closeConnection: () => void
 	const peer = new RTCPeerConnection(standardRtcConfig)
 
 	return {
 		async joinCall(sessionId, audioElement) {
 			let remoteStream: MediaStream = new MediaStream()
-			const localStream = await navigator.mediaDevices.getUserMedia({
+			localStream = await navigator.mediaDevices.getUserMedia({
 				audio: true,
 			})
 			localStream.getAudioTracks().forEach((track) => {
@@ -29,6 +30,7 @@ export const prepareClientActions = (): ClientActions => {
 					},
 				},
 			})
+			closeConnection = connection.close
 			const joined = await connection.signalServer.connecting.joinSession(
 				sessionId
 			)
@@ -66,7 +68,6 @@ export const prepareClientActions = (): ClientActions => {
 					peer.connectionState === "disconnected"
 
 				if (isDisconnected) {
-					peer.close()
 					localStream.getTracks().forEach((track) => {
 						track.stop()
 					})
@@ -89,6 +90,7 @@ export const prepareClientActions = (): ClientActions => {
 		},
 		disconnect() {
 			peer.close()
+			closeConnection()
 			localStream.getTracks().forEach((track) => {
 				track.stop()
 			})

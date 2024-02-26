@@ -35,7 +35,7 @@ export const HostView = app.light_view((use) => (props: HostViewProps) => {
 					<button @click=${startCallSession} .disabled=${!!session}>
 						start
 					</button>
-					<button @click=${endCall} .disabled=${!session}>stop</button>
+					<button @click=${endCall} .disabled=${!session}>end</button>
 					${renderSessionDetails(session, clients)}
 			  `}
 	`
