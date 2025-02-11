@@ -1,11 +1,11 @@
 import { Client, SessionInfo } from "../types.js"
 
 export interface HostActions {
-	endCall: () => Promise<void>
+	endCall: (localStream: MediaStream) => Promise<void>
 	addClient: (id: string) => void
 	removeClient: (id: string) => void
 	updateClientConnectionState: (client: Client) => void
-	startCall: (audioElement: HTMLAudioElement) => Promise<void>
+	startCall: (audioElement: HTMLAudioElement, localStream: MediaStream) => Promise<void>
 }
 
 export interface ClientActions {

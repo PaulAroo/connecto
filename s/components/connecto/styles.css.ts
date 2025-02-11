@@ -4,6 +4,13 @@ export default css`
 	.container {
 		width: fit-content;
 		margin-top: 1rem;
+    /* border: 1px solid red; */
+	}
+
+	.error {
+		color: red;
+		opacity: 0.7;
+		letter-spacing: 1px;
 	}
 
 	button {

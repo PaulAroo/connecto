@@ -10,7 +10,7 @@ import { handleHostConnectionStateChange } from "../views/Host/utils/handleHostC
 
 export const prepareHostActions = (): HostActions => {
 	let intervalId: number
-	let localStream: MediaStream
+	// let localStream: MediaStream
 	let tracks: Map<string, MediaStreamTrack>
 	let sessionKey: string
 	let terminateSession: (key: string) => Promise<void>
@@ -18,9 +18,9 @@ export const prepareHostActions = (): HostActions => {
 
 	// TODO: refactor startcall function
 	return {
-		async startCall(audioElement) {
+		async startCall(audioElement, localStream) {
 			let remoteStream: MediaStream = new MediaStream()
-			localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+			// localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
 			const hostTrack = localStream.getAudioTracks()[0]
 			tracks = new Map<string, MediaStreamTrack>([["host", hostTrack]])
 
@@ -81,6 +81,8 @@ export const prepareHostActions = (): HostActions => {
 					},
 				},
 			})
+
+
 			terminateSession = connection.signalServer.hosting.terminateSession
 
 			const session = await connection.signalServer.hosting.establishSession({
@@ -102,7 +104,8 @@ export const prepareHostActions = (): HostActions => {
 				}
 			}, 10_000)
 		},
-		async endCall() {
+
+		async endCall(localStream) {
 			app.context.state.session = undefined
 			app.context.state.clients = []
 			watch.dispatch()
