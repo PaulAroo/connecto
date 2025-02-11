@@ -15,3 +15,9 @@ body {
 p {
 	color: gray;
 }
+
+.wrapper {
+	/* border: 1px solid red; */
+	max-width: 48rem;
+	margin: 3rem auto;
+}

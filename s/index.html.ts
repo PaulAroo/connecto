@@ -16,12 +16,14 @@ export default template(async (basics) => {
 			${startup_scripts_with_dev_mode(path)}
 		`,
 		body: html`
-			<h1>Connecto</h1>
-			<p>
-				Start a call session and share the link with whoever you want to speak
-				with
-			</p>
-			<connect-to></connect-to>
+			<div class=wrapper>
+				<h1>Connecto</h1>
+				<p>
+					Start a call session and share the link with whoever you want to speak
+					with
+				</p>
+				<connect-to></connect-to>
+			</div>
 		`,
 	})
 })

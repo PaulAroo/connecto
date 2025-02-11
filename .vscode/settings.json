@@ -26,5 +26,6 @@
 	"lit-plugin.rules.no-complex-attribute-binding": "off",
 
 	"javascript.format.semicolons": "remove",
-	"typescript.format.semicolons": "remove"
+  "typescript.format.semicolons": "remove",
+  "editor.insertSpaces": false
 }
