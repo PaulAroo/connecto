@@ -18,25 +18,25 @@ export const ClientView = app.light_view((use) => (props: ClientViewProps) => {
 	const [errorOccured, setErrorOccured] = use.state(false)
 	const sessionDetails = use.watch(() => use.context.state.session)
 
-	// const { joinCall, disconnect } = use.context.actions.client
+	const { joinCall, disconnect } = use.context.actions.client
 
-	// use.mount(() => {
-	// 	setLoading(true)
-	// 	;(async () => {
-	// 		try {
-	// 			const clientId = await joinCall(sessionId, audioElement)
-	// 			setClientId(clientId)
-	// 			setLoading(false)
-	// 		} catch (error) {
-	// 			console.log(error)
-	// 			setErrorOccured(true)
-	// 			setLoading(false)
-	// 			disconnect()
-	// 		}
-	// 	})()
+	use.mount(() => {
+		setLoading(true)
+		;(async () => {
+			try {
+				const clientId = await joinCall(sessionId, audioElement)
+				setClientId(clientId)
+				setLoading(false)
+			} catch (error) {
+				console.log(error)
+				setErrorOccured(true)
+				setLoading(false)
+				disconnect()
+			}
+		})()
 
-	// 	return () => {}
-	// })
+		return () => {}
+	})
 
 	if (loading) {
 		return html` ${Spinner([])}`
@@ -48,7 +48,7 @@ export const ClientView = app.light_view((use) => (props: ClientViewProps) => {
 					<div>Joined a call session</div>
 					<p>Client ID: ${clientId}</p>
 					<p>Session label: ${sessionDetails?.id}</p>
-					<button @click=${() => {}}>end call</button>
+					<button @click=${disconnect}>end call</button>
 			  `
 			: undefined}
 		${errorOccured

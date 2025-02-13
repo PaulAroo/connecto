@@ -1,101 +1,72 @@
-// import { queue } from "sparrow-rtc/x/toolbox/queue.js"
-// import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
+import Sparrow, { SparrowJoin } from "sparrow-rtc"
 
-// import { ClientActions } from "./types.js"
-// import { signalServerUrl, standardRtcConfig } from "../config.js"
-// import { watch } from "@benev/slate"
-// import { app } from "./app.js"
+import { ClientActions } from "./types.js"
+import { watch } from "@benev/slate"
+import { app } from "./app.js"
 
-// export const prepareClientActions = (): ClientActions => {
-// 	let localStream: MediaStream
-// 	let closeConnection: () => void
-// 	const peer = new RTCPeerConnection(standardRtcConfig)
+export const prepareClientActions = (): ClientActions => {
+	let localStream: MediaStream
+	// let closeConnection: () => void
+	let peer : RTCPeerConnection | null = null
+	let sparrow : SparrowJoin | null = null;
 
-// 	return {
-// 		async joinCall(sessionId, audioElement) {
-// 			let remoteStream: MediaStream = new MediaStream()
-// 			localStream = await navigator.mediaDevices.getUserMedia({
-// 				audio: true,
-// 			})
-// 			localStream.getAudioTracks().forEach((track) => {
-// 				peer.addTrack(track)
-// 			})
+	return {
+		async joinCall(invite, audioElement) {
 
-// 			const connection = await connectToSignalServer({
-// 				url: signalServerUrl,
-// 				client: {
-// 					async handleIceCandidates(candidates) {
-// 						for (const candidate of candidates)
-// 							await peer.addIceCandidate(candidate)
-// 					},
-// 				},
-// 			})
-// 			closeConnection = connection.close
-// 			const joined = await connection.signalServer.connecting.joinSession(
-// 				sessionId
-// 			)
-// 			if (!joined) throw new Error("failed to join session")
+			let remoteStream: MediaStream = new MediaStream()
+			localStream = await navigator.mediaDevices.getUserMedia({
+				audio: true,
+			})
 
-// 			const { clientId, sessionInfo } = joined
-// 			app.context.state.session = sessionInfo
-// 			watch.dispatch()
+			sparrow = await Sparrow.join({
+				invite,
+				disconnected: () => console.warn(`disconnected from host`),
+			})
 
-// 			const iceQueue = queue(
-// 				async (candidates: any[]) =>
-// 					await connection.signalServer.connecting.submitIceCandidates(
-// 						sessionId,
-// 						clientId,
-// 						candidates
-// 					)
-// 			)
+			peer = sparrow.connection.peer
+			const clientId = sparrow.connection.id
 
-// 			peer.onicecandidate = async (event) => {
-// 				const candidate = event.candidate
-// 				if (candidate) {
-// 					iceQueue.add(candidate)
-// 				}
-// 			}
+			localStream.getAudioTracks().forEach((track) => {
+				peer?.addTrack(track)
+			})
 
-// 			peer.ontrack = (event) => {
-// 				remoteStream.addTrack(event.track)
-// 				audioElement.srcObject = remoteStream
-// 			}
+			app.context.state.session = {id: clientId}
+			watch.dispatch()
 
-// 			peer.onconnectionstatechange = () => {
-// 				const isDisconnected =
-// 					peer.connectionState === "failed" ||
-// 					peer.connectionState === "closed" ||
-// 					peer.connectionState === "disconnected"
 
-// 				if (isDisconnected) {
-// 					localStream.getTracks().forEach((track) => {
-// 						track.stop()
-// 					})
-// 					app.context.state.session = undefined
-// 					watch.dispatch()
-// 				}
-// 			}
+			peer.ontrack = (event) => {
+				remoteStream.addTrack(event.track)
+				audioElement.srcObject = remoteStream
+			}
 
-// 			await peer.setRemoteDescription(joined.offer)
-// 			const answer = await peer.createAnswer()
-// 			await peer.setLocalDescription(new RTCSessionDescription(answer))
-// 			await connection.signalServer.connecting.submitAnswer(
-// 				sessionInfo.id,
-// 				clientId,
-// 				answer
-// 			)
-// 			await iceQueue.ready()
+			peer.onconnectionstatechange = () => {
+				const isDisconnected =
+					peer?.connectionState === "failed" ||
+					peer?.connectionState === "closed" ||
+					peer?.connectionState === "disconnected"
 
-// 			return clientId
-// 		},
-// 		disconnect() {
-// 			peer.close()
-// 			closeConnection()
-// 			localStream.getTracks().forEach((track) => {
-// 				track.stop()
-// 			})
-// 			app.context.state.session = undefined
-// 			watch.dispatch()
-// 		},
-// 	}
-// }
+				if (isDisconnected) {
+					localStream.getTracks().forEach((track) => {
+						track.stop()
+					})
+					app.context.state.session = undefined
+					watch.dispatch()
+				}
+			}
+
+			return clientId
+		},
+
+		disconnect() {
+			peer?.close()
+			localStream.getTracks().forEach((track) => {
+				track.stop()
+			})
+
+			sparrow?.close()
+
+			app.context.state.session = undefined
+			watch.dispatch()
+		},
+	}
+}

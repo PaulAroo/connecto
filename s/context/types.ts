@@ -18,7 +18,7 @@ export interface ClientActions {
 
 export interface Actions {
 	host: HostActions
-	client: () => void
+	client: ClientActions
 }
 
 export interface Streams {
