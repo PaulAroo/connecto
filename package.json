@@ -33,6 +33,6 @@
 	},
 	"dependencies": {
 		"@benev/slate": "^0.1.2",
-		"sparrow-rtc": "^0.0.0-dev.6"
+		"sparrow-rtc": "^0.2.4"
 	}
 }

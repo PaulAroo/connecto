@@ -2,7 +2,7 @@ import { Nexus, Context, css } from "@benev/slate"
 
 import { Actions, State } from "./types.js"
 import { prepareHostActions } from "./hostActions.js"
-import { prepareClientActions } from "./clientActions.js"
+// import { prepareClientActions } from "./clientActions.js"
 
 export const app = new Nexus(
 	new (class extends Context {
@@ -21,7 +21,7 @@ export const app = new Nexus(
 		}
 		actions: Actions = {
 			host: prepareHostActions(),
-			client: prepareClientActions(),
+			client: () => {},
 		}
 	})()
 )

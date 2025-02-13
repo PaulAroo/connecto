@@ -4,21 +4,21 @@ import { app } from "../../../context/app.js"
 
 export const handleHostConnectionStateChange = (
 	clientId: string,
-	peer: RTCPeerConnection
+	connState: RTCPeerConnectionState
 ) => {
 	return () => {
 		const shouldUpdate =
-			peer.connectionState === "connecting" ||
-			peer.connectionState === "connected" ||
-			peer.connectionState === "disconnected"
+			connState === "connecting" ||
+			connState === "connected" ||
+			connState === "disconnected"
 
 		const shouldDisconnect =
-			peer.connectionState === "failed" || peer.connectionState === "closed"
+			connState === "failed" || connState === "closed"
 
 		if (shouldUpdate) {
 			app.context.actions.host.updateClientConnectionState({
 				id: clientId,
-				connectionState: peer.connectionState,
+				connectionState: connState,
 			})
 		}
 

@@ -14,7 +14,7 @@ export const renderSessionDetails = (
 		return html`
 			<div class="session">
 				<p><span>session ID: </span>${sessionDetails.id}</p>
-				<p><span>session label: </span>${sessionDetails.label}</p>
+				
 				<div class="link">
 					<p>invite link</p>
 					<div class="card">

@@ -1,124 +1,75 @@
-import { watch } from "@benev/slate"
-import { queue } from "sparrow-rtc/x/toolbox/queue.js"
-import { connectToSignalServer } from "sparrow-rtc/x/connect/utils/connect-to-signal-server.js"
 
+import Sparrow, { SparrowHost } from "sparrow-rtc"
 import { app } from "./app.js"
-import { Peer } from "../types.js"
+import { watch } from "@benev/slate"
+
 import { HostActions } from "./types.js"
-import { signalServerUrl, standardRtcConfig } from "../config.js"
 import { handleHostConnectionStateChange } from "../views/Host/utils/handleHostConnectionStateChange.js"
+import { Peer } from "../types.js"
 
 export const prepareHostActions = (): HostActions => {
-	let intervalId: number
-	// let localStream: MediaStream
-	let tracks: Map<string, MediaStreamTrack>
-	let sessionKey: string
-	let terminateSession: (key: string) => Promise<void>
-	const peerConnections = new Map<string, Peer>()
 
-	// TODO: refactor startcall function
+	const peerConnections = new Map<string, Peer>()
+	let sparrow : SparrowHost | null = null;
+
 	return {
 		async startCall(audioElement, localStream) {
+			const peerConnections = new Map<string, RTCPeerConnection>()
 			let remoteStream: MediaStream = new MediaStream()
-			// localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
-			const hostTrack = localStream.getAudioTracks()[0]
-			tracks = new Map<string, MediaStreamTrack>([["host", hostTrack]])
+			// const hostTrack = localStream.getAudioTracks()[0]
 
-			const connection = await connectToSignalServer({
-				url: signalServerUrl,
-				host: {
-					async handleJoiner(clientId) {
-						const peer = new RTCPeerConnection(standardRtcConfig)
-						const iceQueue = queue(async (candidates: any[]) =>
-							connection.signalServer.hosting.submitIceCandidates(
-								clientId,
-								candidates
-							)
-						)
-						peerConnections.set(clientId, { peer, iceQueue })
-						app.context.actions.host.addClient(clientId)
+			sparrow = await Sparrow.host({
+				welcome: _ => connection => {
+					const clientId = connection.id
+					const peer = connection.peer
 
-						tracks.forEach((track, key) => {
-							if (key !== clientId) peer.addTrack(track)
-						})
+					peerConnections.set(clientId, peer)
 
-						peer.ontrack = (event) => {
-							remoteStream.addTrack(event.track)
-							tracks.set(clientId, event.track)
-							audioElement.srcObject = remoteStream
+					// client state
+					app.context.actions.host.addClient(clientId)
 
-							peerConnections.forEach(({ peer }, key) => {
-								if (key !== clientId) peer.addTrack(event.track)
-							})
-						}
+					peer.ontrack = (event) => {
+						remoteStream.addTrack(event.track)
+						audioElement.srcObject = remoteStream
+					}
 
-						peer.onicecandidate = async (event) => {
-							if (event.candidate) {
-								iceQueue.add(event.candidate)
-							}
-						}
+					peer.onconnectionstatechange = handleHostConnectionStateChange(
+												clientId,
+												peer.connectionState
+											)
+		
 
-						peer.onconnectionstatechange = handleHostConnectionStateChange(
-							clientId,
-							peer
-						)
-
-						const offer = await peer.createOffer()
-						peer.setLocalDescription(offer)
-						return { offer }
-					},
-
-					async handleAnswer(clientId, answer) {
-						const { peer, iceQueue } = peerConnections.get(clientId)!
-						await peer.setRemoteDescription(new RTCSessionDescription(answer))
-						await iceQueue.ready()
-					},
-
-					async handleIceCandidates(clientId, candidates) {
-						const { peer } = peerConnections.get(clientId)!
-						for (const candidate of candidates)
-							await peer.addIceCandidate(candidate)
-					},
+					// react to the other side disconnecting
+					return () => {
+						app.context.actions.host.removeClient(clientId)
+					}
 				},
-			})
-
-
-			terminateSession = connection.signalServer.hosting.terminateSession
-
-			const session = await connection.signalServer.hosting.establishSession({
-				discoverable: true,
-				label: "call test session",
-			})
-			sessionKey = session.key
-			app.context.state.session = session
-			watch.dispatch()
-
-			intervalId = window.setInterval(async () => {
-				try {
-					const start = Date.now()
-					const serverTime = await connection.signalServer.hosting.keepAlive()
-					const ping = Date.now() - start
-					console.log(`ping ${ping}ms, server time ${serverTime}`)
-				} catch (error) {
-					console.log(2, error)
+				closed: () => {
+					console.warn("connection to signaller lost")
 				}
-			}, 10_000)
+			})
+
+			app.context.state.session = {id: sparrow?.invite}
+			watch.dispatch()
 		},
+
 
 		async endCall(localStream) {
 			app.context.state.session = undefined
 			app.context.state.clients = []
 			watch.dispatch()
+
 			peerConnections.forEach(({ peer }) => {
 				peer.close()
 			})
 			localStream.getTracks().forEach((track) => {
 				track.stop()
 			})
-			await terminateSession(sessionKey)
-			clearInterval(intervalId)
+
 			peerConnections.clear()
+			sparrow?.close()
 		},
+
 		updateClientConnectionState(client) {
 			const clients = app.context.state.clients
 			app.context.state.clients = clients.map((c) =>
@@ -139,8 +90,9 @@ export const prepareHostActions = (): HostActions => {
 			const clients = app.context.state.clients
 			app.context.state.clients = clients.filter((c) => c.id !== id)
 			peerConnections.delete(id)
-			tracks.delete(id)
+			// tracks.delete(id)
 			watch.dispatch()
 		},
 	}
 }
+
