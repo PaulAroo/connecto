@@ -46,7 +46,30 @@ export const prepareHostActions = (): HostActions => {
 				},
 				closed: () => {
 					console.warn("connection to signaller lost")
-				}
+				},
+
+				// rtcConfigurator: async() => ({
+				// 	iceServers: [
+				// 		// these are free publicly available STUN servers
+				// 		{urls: [
+				// 			"stun:stun.l.google.com:19302",
+				// 			"stun:stun1.l.google.com:19302",
+				// 			"stun:stun2.l.google.com:19302"
+				// 		]},
+						
+				// 		// {urls: ["stun:stun.services.mozilla.com:3478"]},
+				// 		// {urls: ["stun:server2024.stunprotocol.org:3478"]},
+			
+				// 		// if you pay for a TURN service,
+				// 		// you'll obtain some config data that goes in this same array
+				// 		// as these STUN servers above.
+				// 		// {
+				// 		// 	urls: "turns:freeturn.tel:5349",
+				// 		// 	username: "free",
+				// 		// 	credential: "free",
+				// 		// },
+				// 	],
+				// }),
 			})
 
 			app.context.state.session = {id: sparrow?.invite}
