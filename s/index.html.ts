@@ -13,6 +13,7 @@ export default template(async (basics) => {
 		title: "connecto",
 		head: html`
 			<link rel="stylesheet" href="${cssPath}" />
+			<meta name="darkreader-lock">
 			${startup_scripts_with_dev_mode(path)}
 		`,
 		body: html`
